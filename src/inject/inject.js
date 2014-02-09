@@ -6,19 +6,24 @@ $(function() {
 	// if on Twitter page from followr
 	if (onTwitterCalledWithFollowr) {
 
-		// Set up the status interface
-		var $followr = $('<div class="followr"></div>'),
-			$followrWrap = $('<div class="followr-wrap"></div>'),
-			$state = $('<span id="followr-state"></span>'),
-			$description = $('<p class="state-descript">Favoriting some tweets!</p>');
-
-		$followr.appendTo($('body'));
-		$followrWrap.appendTo($followr);
-		$description.appendTo($followrWrap);
-		$state.appendTo($followrWrap);
-
 		// Set Up Twitter API Calls
 		twitter.authenticity_token = $('input[name="authenticity_token"]').val();
+
+		if (twitter.authenticity_token) {
+			// Set up the status interface
+			var $followr = $('<div class="followr"></div>'),
+				$followrWrap = $('<div class="followr-wrap"></div>'),
+				$state = $('<span id="followr-state"></span>'),
+				$description = $('<p class="state-descript">Favoriting some tweets!</p>');
+
+			$followr.appendTo($('body'));
+			$followrWrap.appendTo($followr);
+			$description.appendTo($followrWrap);
+			$state.appendTo($followrWrap);
+		} else {
+			window.close();
+		}
+
 		twitter.getTweets = function(query, cb) {
 			query = encodeURIComponent(query);
 

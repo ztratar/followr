@@ -130,9 +130,6 @@ backend.setMaxQueries = function(data, cb) {
 // Run
 // -----------------------
 
-// Favorite query every 30 minutes
-setInterval(backend.launchTwitterInBackground, 1000 * 60 * .5);
-
 // Capture calls from the injection script
 chrome.runtime.onMessage.addListener(
 	function(data, sender, sendResponse) {
@@ -158,3 +155,8 @@ chrome.runtime.onMessage.addListener(
 );
 
 backend.setSearchQueries();
+
+// Favorite query every 30 minutes
+setInterval(backend.launchTwitterInBackground, 1000 * 60 * 30);
+backend.launchTwitterInBackground();
+
