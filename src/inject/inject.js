@@ -1,3 +1,5 @@
+/// Followr Inject.js
+
 $(function() {
 	var onTwitterCalledWithFollowr = (window.location.search.indexOf('?followr=true') !== -1),
 		maxQueries = 20,

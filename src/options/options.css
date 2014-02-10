@@ -1,0 +1,66 @@
+body, html {
+	font-family: 'Helvetica Neue', 'Helvetica', Arial;
+	font-size: 18px;
+	background: #fbfbfb;
+}
+
+.container {
+	display: block;
+	margin: 0 auto;
+	max-width: 400px;
+	padding: 40px 0;
+}
+
+h1 {
+	color: #3d3d3d;
+	font-size: 32px;
+	text-transform: uppercase;
+}
+
+p {
+	color: #888;
+}
+
+div.row {
+	display: block;
+	padding: 14px 0;
+}
+
+div.row label {
+	display: block;
+	text-transform: uppercase;
+	font-weight: 500;
+	font-size: 16px;
+	color: #666;
+	margin: 0 0 8px 0;
+}
+
+div.row textarea, div.row input {
+	width: 100%;
+	resize: none;
+	border-radius: 3px;
+	border: 1px solid #ccc;
+	padding: 10px;
+	font-size: 18px;
+}
+
+div.row p {
+	font-size: 12px;
+}
+
+div.row input[type="submit"] {
+	background: #22D864;
+	color: white;
+	cursor: pointer;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 18px;
+	letter-spacing: 1px;
+	border-bottom: 2px solid #17BE54;
+	text-shadow: 0 1px 2px rgba(0,0,0,.18);
+	font-family: 'Helvetica Neue', 'Helvetica', Arial;
+}
+
+div.row input[type="submit"].saved {
+	background: #00FC5B;
+}

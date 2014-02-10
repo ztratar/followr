@@ -42,5 +42,6 @@
         "src/inject/inject.js"
       ]
     }
-  ]
+  ],
+  "options_page": "options.html"
 }

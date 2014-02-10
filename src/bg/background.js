@@ -106,13 +106,8 @@ backend.setSearchQueries = function(queries, cb) {
 	queries = queries || [];
 	// TODO: Put an interface to this function
 	chrome.storage.sync.set({
-		searchQueries: [
-			'UX Design',
-			'http://news.ycombinator.com',
-			'FB Stock',
-			'Bitcoin'
-		]
-	});
+		searchQueries: queries
+	}, cb);
 
 	return true;
 };
@@ -121,7 +116,27 @@ backend.setMaxQueries = function(data, cb) {
 	// TODO: Put an interface to this function
 	chrome.storage.sync.set({
 		maxQueries: data
+	}, cb);
+
+	return true;
+};
+
+backend.setOptions = function(data, cb) {
+	var set = 0,
+		respondOnceBothDone = function() {
+			if (set >= 2) {
+				cb(true);
+			}	
+		};
+
+	backend.setMaxQueries(data.numTweets, function() {
+		set++;
+		respondOnceBothDone();	
 	});
+	backend.setSearchQueries(data.queries, function() {
+		set++;
+		respondOnceBothDone();		
+	});	
 
 	return true;
 };
@@ -148,6 +163,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.setSearchQueries(data.data, sendResponse);
 			case 'setMaxQueries':
 				return backend.setMaxQueries(data.data, sendResponse);
+			case 'setOptions':
+				return backend.setOptions(data.data, sendResponse);
 			default:
 				return false;
 		}
@@ -159,4 +176,3 @@ backend.setSearchQueries();
 // Favorite query every 30 minutes
 setInterval(backend.launchTwitterInBackground, 1000 * 60 * 30);
 backend.launchTwitterInBackground();
-
