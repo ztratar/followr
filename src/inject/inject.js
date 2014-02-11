@@ -100,8 +100,8 @@ $(function() {
 									// Add to Already Favorited DB									
 									console.log(tweetNum, '>', tweets.length, searchQuery, searchQueries[searchQueries.length-1]);
 
-									if ((tweetNum >= tweets.length || tweetNum >= queryTweetMax) && searchQuery === searchQueries[searchQueries.length-1]) {
-										window.remove();
+									if ((tweetNum >= tweets.length || tweetNum >= queryTweetMax - 1) && searchQuery === searchQueries[searchQueries.length-1]) {
+										window.close();
 									}
 								});
 							};
