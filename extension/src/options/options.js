@@ -48,13 +48,13 @@ $(function() {
 				numTweets: numTweets	
 			}
 		}, function(data) {
-			$saveButton.val('Saved!').addClass('saved');	
+			$('.saved').addClass('show');
 			setTimeout(function() {
 				chrome.runtime.sendMessage({
 					message: 'forceRun'
 				});
 				window.close();
-			}, 500);
+			}, 840);
 		});
 
 		return false;

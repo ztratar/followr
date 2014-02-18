@@ -1,5 +1,5 @@
 body, html {
-	font-family: 'Helvetica Neue', 'Helvetica', Arial;
+	font-family: 'Open Sans', sans-serif;
 	font-size: 18px;
 	background: #fbfbfb;
 	min-width: 440px;
@@ -19,9 +19,8 @@ form {
 }
 
 h1 {
-	color: #3d3d3d;
+	color: #5F6064;
 	font-size: 32px;
-	text-transform: uppercase;
 }
 
 p {
@@ -34,9 +33,10 @@ div.row {
 }
 
 div.save-row {
-	background: #EBF1EE;
+	background: #ECF0F7;
 	margin: 20px -30px -10px;
 	padding: 20px 30px;
+	border-top: 1px solid #DEE0E6;	
 }
 
 div.row label {
@@ -49,6 +49,8 @@ div.row label {
 }
 
 div.row textarea, div.row input {
+	font-family: 'Open Sans';
+	color: #282828;
 	width: 100%;
 	resize: none;
 	border-radius: 3px;
@@ -57,27 +59,68 @@ div.row textarea, div.row input {
 	font-size: 18px;
 }
 
+div.row textarea:focus, div.row input:focus {
+	outline: none;
+	border: 2px solid rgb(170, 170, 241);
+	padding: 9px;
+	box-shadow: 0 0 8px rgba(170, 170, 241, .14);
+}
+
 div.row p {
 	font-size: 12px;
 }
 
 div.row input[type="submit"] {
-	background: #22D864;
+	background: #2ED86C;
 	color: white;
 	cursor: pointer;
 	text-transform: uppercase;
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 22px;
 	letter-spacing: 1px;
 	border-bottom: 2px solid #17BE54;
-	text-shadow: 0 1px 2px rgba(0,0,0,.18);
-	font-family: 'Helvetica Neue', 'Helvetica', Arial;
+	text-shadow: 0 1px 2px rgba(0,0,0,.24);
+	font-family: 'Open Sans', san-serif;
+	box-shadow: 0 0 5px rgba(13, 116, 51, 0.04);
 }
 
 div.row input[type="submit"]:hover {
 	background: #2EE26F;
+	box-shadow: 0 0 5px rgba(13, 116, 51, 0.15);
 }
 
-div.row input[type="submit"].saved {
-	background: #00FC5B;
+.saved {
+	position: fixed;
+	z-index: 1000;
+	background: rgba(190, 199, 205, .89);
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	visibility: none;
+	opacity: 0;
+	display: table;
+	pointer-events: none;
+	transition: opacity .22s ease-in-out;
+}
+
+.saved.show {
+	visibility: visible;
+	opacity: 1;
+}
+
+.saved span {
+	text-align: center;
+	display: table-cell;
+	vertical-align: middle;
+	font-size: 40px;
+	color: white;
+	-webkit-transform: scale(1.6);
+	text-shadow: 0 1px 14px rgba(0,0,0,.22);
+	transition: all 0.26s ease-in-out;
+	-webkit-transition: all 0.26s ease-in-out;
+}
+
+.saved.show span {
+	-webkit-transform: scale(1);
 }
