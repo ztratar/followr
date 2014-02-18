@@ -18,7 +18,7 @@
   "browser_action": {
     "default_icon": "icons/icon19.png",
     "default_title": "browser action demo",
-    "default_popup": "src/browser_action/browser_action.html"
+    "default_popup": "options.html"
   },
   "permissions": [
 	"storage",

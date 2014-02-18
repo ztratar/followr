@@ -2,13 +2,20 @@ body, html {
 	font-family: 'Helvetica Neue', 'Helvetica', Arial;
 	font-size: 18px;
 	background: #fbfbfb;
+	min-width: 440px;
+	height: 470px;
 }
 
 .container {
 	display: block;
 	margin: 0 auto;
 	max-width: 400px;
-	padding: 40px 0;
+	padding: 1px 0 0px;
+}
+
+form {
+	margin: 0;
+	padding: 0;
 }
 
 h1 {
@@ -24,6 +31,12 @@ p {
 div.row {
 	display: block;
 	padding: 14px 0;
+}
+
+div.save-row {
+	background: #EBF1EE;
+	margin: 20px -30px -10px;
+	padding: 20px 30px;
 }
 
 div.row label {
@@ -59,6 +72,10 @@ div.row input[type="submit"] {
 	border-bottom: 2px solid #17BE54;
 	text-shadow: 0 1px 2px rgba(0,0,0,.18);
 	font-family: 'Helvetica Neue', 'Helvetica', Arial;
+}
+
+div.row input[type="submit"]:hover {
+	background: #2EE26F;
 }
 
 div.row input[type="submit"].saved {

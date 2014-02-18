@@ -165,13 +165,14 @@ $(function() {
 						for (i = 0; i < tweets.length; i++) {
 							(function() {
 								var j = i,
-									queryTweetMax = Math.floor(maxQueries / searchQueries.length);
+									queryTweetMax = Math.floor(maxQueries / searchQueries.length),
+									tweetInMilliseconds = queryIndex * (queryTweetMax * 1000 + 200) + j * 1000 + Math.random() * 200;
 								if (j < queryTweetMax) {
 									setTimeout(function() {
 										var numTweet = 1 + j + queryIndex*queryTweetMax;
 										$state.html(searchQuery + ': ' + numTweet + '/' + maxQueries);
 										favoriteTweetIter(j, numTweet);	
-									}, queryIndex * (queryTweetMax*300+200) + j * 300 + Math.random() * 200);
+									}, tweetInMilliseconds);
 								}
 							})();
 						}
