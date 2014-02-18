@@ -13,7 +13,9 @@ $(function() {
 	chrome.runtime.sendMessage({
 		message: 'getMaxQueries'
 	}, function(data) {
-		$tweetNum.val(data);
+		if (typeof data === 'number') {
+			$tweetNum.val(data);
+		}
 	});
 
 	$followrForm.submit(function(e) {
@@ -39,10 +41,15 @@ $(function() {
 		}, function(data) {
 			$saveButton.val('Saved!').addClass('saved');	
 			setTimeout(function() {
-				$saveButton.val('Save').removeClass('saved');
-			}, 4000);
+				chrome.runtime.sendMessage({
+					message: 'forceRun'
+				});
+				window.close();
+			}, 500);
 		});
 
 		return false;
 	});
+
+	$queries.focus();
 });

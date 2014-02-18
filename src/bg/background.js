@@ -4,24 +4,35 @@
 // Backend Logic
 // -----------------------
 
-var backend = {};
+var backend = {},
+	loggedIn = true;
 
 // Launch Twitter function
 backend.launchTwitterInBackground = function() {
-	// Store run time in milliseconds
-	chrome.storage.sync.set({
-		'lastRun': (new Date()).getTime()
-	});
-	backend.incrementRunCount();
+	if (!loggedIn) {
+		return;
+	}
 
-	chrome.windows.create({
-		url: 'http://twitter.com/?followr=true',
-		width: 240,
-		height: 240,
-		top: 40000,
-		left: 40000,
-		focused: false,
-		type: 'popup'
+	// Only run if queries exist
+	backend.getSearchQueries(function(searchQueries) {
+		if (!searchQueries.length) {
+			return;
+		}
+		// Store run time in milliseconds
+		chrome.storage.sync.set({
+			'lastRun': (new Date()).getTime()
+		});
+		backend.incrementRunCount();
+
+		chrome.windows.create({
+			url: 'http://twitter.com/?followr=true',
+			width: 390,
+			height: 240,
+			top: 40000,
+			left: 40000,
+			focused: false,
+			type: 'popup'
+		});
 	});
 };
 
@@ -61,12 +72,15 @@ backend.getNewTweets = function(data, cb) {
 			if (tweetIter >= data.tweets.length) {
 				cb(returnTweets);
 			} else {
-				chrome.storage.sync.get('tweet-' + tweet.id, function(tweetInDb) {
-					if (tweetInDb !== true) {
-						returnTweets.push(tweet);
-					}	
-					getNewTweetRecur(tweetIter + 1);	
-				});
+				(function() {
+					var tweetId = tweet;
+					chrome.storage.sync.get('tweet-' + tweetId, function(tweetInDb) {
+						if (Object.keys(tweetInDb).length === 0) {
+							returnTweets.push(tweet);
+						}
+						getNewTweetRecur(tweetIter + 1);	
+					});
+				})();
 			}
 		};
 
@@ -90,6 +104,12 @@ backend.getMaxQueries = function(cb) {
 	chrome.storage.sync.get('maxQueries', function(data) {
 		cb(data.maxQueries);
 	});
+
+	return true;
+};
+
+backend.getLoggedInStatus = function(cb) {
+	cb(loggedIn);
 
 	return true;
 };
@@ -141,6 +161,12 @@ backend.setOptions = function(data, cb) {
 	return true;
 };
 
+backend.setLoggedInStatus = function(data, cb) {
+	loggedIn = data;
+
+	return true;
+};
+
 // -----------------------
 // Run
 // -----------------------
@@ -157,6 +183,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.getNewTweets(data.data, sendResponse);
 			case 'getMaxQueries':
 				return backend.getMaxQueries(sendResponse);
+			case 'getLoggedInStatus':
+				return backend.getLoggedInStatus(sendResponse);
 			case 'setFavorited':
 				return backend.setFavorited(data.data, sendResponse);
 			case 'setSearchQueries':
@@ -165,14 +193,38 @@ chrome.runtime.onMessage.addListener(
 				return backend.setMaxQueries(data.data, sendResponse);
 			case 'setOptions':
 				return backend.setOptions(data.data, sendResponse);
+			case 'setLoggedInStatus':
+				return backend.setLoggedInStatus(data.data, sendResponse);
+			case 'forceRun':
+				backend.launchTwitterInBackground();
+				return true;
 			default:
 				return false;
 		}
 	}
 );
 
-backend.setSearchQueries();
+// First time run
+chrome.storage.sync.get(undefined, function(data) {
+	var optionsUrl;
+
+	if (data.hasSetup !== true) {
+		optionsUrl = chrome.extension.getURL('options.html');
+		chrome.tabs.query({ url: optionsUrl }, function(tabs) {
+			if (tabs.length) {
+				chrome.tabs.update(tabs[0].id, { active: true });
+			} else {
+				chrome.tabs.create({ url: optionsUrl });
+			}
+		});
+	} else {
+		backend.launchTwitterInBackground();
+	}
+
+	chrome.storage.sync.set({
+		hasSetup: true
+	});
+});
 
 // Favorite query every 30 minutes
 setInterval(backend.launchTwitterInBackground, 1000 * 60 * 30);
-backend.launchTwitterInBackground();

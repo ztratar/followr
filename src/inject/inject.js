@@ -2,8 +2,37 @@
 
 $(function() {
 	var onTwitterCalledWithFollowr = (window.location.search.indexOf('?followr=true') !== -1),
-		maxQueries = 20,
+		maxQueries = 20, // default queries
 		twitter = {};
+
+	// Get MaxQueries -- not too worried about the race condition
+	chrome.runtime.sendMessage({
+		message: 'getMaxQueries'
+	}, function(mQ) {
+		maxQueries = mQ;
+	});
+
+	chrome.runtime.sendMessage({
+		message: 'getLoggedInStatus'
+	}, function(backendThinksLoggedIn) {
+		if ($('body').hasClass('logged-in')) {
+			chrome.runtime.sendMessage({
+				message: 'setLoggedInStatus',
+				data: true
+			});
+
+			if (!backendThinksLoggedIn) {
+				chrome.runtime.sendMessage({
+					message: 'forceRun'
+				});
+			}
+		} else {
+			chrome.runtime.sendMessage({
+				message: 'setLoggedInStatus',
+				data: false
+			});
+		}
+	});
 
 	// if on Twitter page from followr
 	if (onTwitterCalledWithFollowr) {
@@ -11,11 +40,11 @@ $(function() {
 		// Set Up Twitter API Calls
 		twitter.authenticity_token = $('input[name="authenticity_token"]').val();
 
-		if (twitter.authenticity_token) {
+		if (twitter.authenticity_token && $('body').hasClass('logged-in')) {
 			// Set up the status interface
 			var $followr = $('<div class="followr"></div>'),
 				$followrWrap = $('<div class="followr-wrap"></div>'),
-				$state = $('<span id="followr-state"></span>'),
+				$state = $('<span id="followr-state">Loading...</span>'),
 				$description = $('<p class="state-descript">Favoriting some tweets!</p>');
 
 			$followr.appendTo($('body'));
@@ -26,15 +55,24 @@ $(function() {
 			window.close();
 		}
 
-		twitter.getTweets = function(query, cb) {
-			query = encodeURIComponent(query);
+		twitter.getTweets = function(query, cb, options) {
+			var url,
+				formattedQuery = encodeURIComponent(query);
+
+			options = options || {};
+			url = 'https://twitter.com/i/search/timeline?q=' + formattedQuery + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0';
+
+			if (options && options.lastTweetId && options.firstTweetId) {
+				url += '&scroll_cursor=TWEET-'+options.lastTweetId+'-'+options.firstTweetId;
+			}
 
 			$.ajax({
-				url: 'https://twitter.com/i/search/timeline?q=' + query + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0',
+				url: url,
 				dataType: 'json',
 				success: function(data, d) {
 					var itemHTML = data.inner ? data.inner.items_html : undefined,
-						items = itemHTML ? itemHTML.match(/data-item-id="([0-9]{18})/g) : [];
+						items = itemHTML ? itemHTML.match(/data-item-id="([0-9]{18})/g) : [],
+						numNewItems = 0;
 
 					// Parsed html doesn't map propertly, but this is an
 					// easy hack.
@@ -46,10 +84,24 @@ $(function() {
 					});
 					items.pop();
 
-					if (items.length) {
-						cb(items);
+					numNewItems = items.length;
+					if (options.existingItems) {
+						items = options.existingItems.concat(items);
+					}
+
+					// Ensure we have enough tweets to run through em and filter
+					// the used, even when frequency raises.
+					// Pretty hacky, but this should work for all good uses
+					// of this extension. We could add more rigid functionality,
+					// but that would easily open spam.
+					if (items.length < 50 && numNewItems > 10) {
+						twitter.getTweets(query, cb, {
+							firstTweetId: items[0],
+							lastTweetId: items[items.length-1],
+							existingItems: items	
+						});
 					} else {
-						window.remove();
+						cb(items);
 					}
 				}
 			});
@@ -73,7 +125,9 @@ $(function() {
 		chrome.runtime.sendMessage({
 			message: 'getSearchQueries'
 		}, function(searchQueries) {
-			
+			// Figure out how many items to go through for each query
+			//
+			// Get that many new items to favorite
 			$.each(searchQueries, function(queryIndex, searchQuery) {
 				// Get results of twitter call
 				twitter.getTweets(searchQuery, function(unfilteredTweets) {
@@ -86,7 +140,7 @@ $(function() {
 							tweets: unfilteredTweets
 						}
 					}, function(tweets) {
-						var favoriteTweetIter = function(tweetNum, queryTweetMax) {
+						var favoriteTweetIter = function(tweetNum, totalTweetNum) {
 								var tweetId = tweets[tweetNum];
 
 								chrome.runtime.sendMessage({
@@ -97,10 +151,7 @@ $(function() {
 								});
 
 								twitter.favoriteTweet(tweetId, function(data) {
-									// Add to Already Favorited DB									
-									console.log(tweetNum, '>', tweets.length, searchQuery, searchQueries[searchQueries.length-1]);
-
-									if ((tweetNum >= tweets.length || tweetNum >= queryTweetMax - 1) && searchQuery === searchQueries[searchQueries.length-1]) {
+									if (totalTweetNum === maxQueries) {
 										window.close();
 									}
 								});
@@ -117,9 +168,10 @@ $(function() {
 									queryTweetMax = Math.floor(maxQueries / searchQueries.length);
 								if (j < queryTweetMax) {
 									setTimeout(function() {
-										$state.html(searchQuery + ': ' + (j+1) + '/' + queryTweetMax);
-										favoriteTweetIter(j, queryTweetMax);	
-									}, j * 7000 + Math.random() * 4000);
+										var numTweet = 1 + j + queryIndex*queryTweetMax;
+										$state.html(searchQuery + ': ' + numTweet + '/' + maxQueries);
+										favoriteTweetIter(j, numTweet);	
+									}, queryIndex * (queryTweetMax*300+200) + j * 300 + Math.random() * 200);
 								}
 							})();
 						}
