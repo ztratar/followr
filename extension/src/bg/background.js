@@ -15,7 +15,7 @@ backend.launchTwitterInBackground = function() {
 
 	// Only run if queries exist
 	backend.getSearchQueries(function(searchQueries) {
-		if (!searchQueries.length) {
+		if (!searchQueries || !searchQueries.length) {
 			return;
 		}
 		// Store run time in milliseconds

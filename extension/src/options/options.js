@@ -30,6 +30,7 @@ $(function() {
 
 		var numTweets = parseInt($tweetNum.val(), 10),
 			queries = $queries.val(),
+			parsedQueries = [],
 			i;
 
 		numTweets = numTweets || 20;
@@ -38,13 +39,21 @@ $(function() {
 
 		queries = queries.split(',');
 		for (i = 0; i < queries.length; i++) {
-			queries[i] = $.trim(queries[i]);
+			trimmed = $.trim(queries[i]);
+			if (trimmed !== '') {
+				parsedQueries.push(trimmed);
+			}
+		}
+
+		if (typeof numTweets !== 'number' ||
+				parsedQueries.length < 1) {
+			return false;
 		}
 
 		chrome.runtime.sendMessage({
 			message: 'setOptions',
 			data: {
-				queries: queries,
+				queries: parsedQueries,
 				numTweets: numTweets	
 			}
 		}, function(data) {
