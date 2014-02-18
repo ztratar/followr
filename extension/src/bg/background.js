@@ -24,14 +24,9 @@ backend.launchTwitterInBackground = function() {
 		});
 		backend.incrementRunCount();
 
-		chrome.windows.create({
+		chrome.tabs.create({
 			url: 'http://twitter.com/?followr=true',
-			width: 390,
-			height: 240,
-			top: 40000,
-			left: 40000,
-			focused: false,
-			type: 'popup'
+			active: false
 		});
 	});
 };
