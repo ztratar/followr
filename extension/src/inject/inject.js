@@ -51,6 +51,8 @@ $(function() {
 			$followrWrap.appendTo($followr);
 			$description.appendTo($followrWrap);
 			$state.appendTo($followrWrap);
+
+			document.title = 'Followr - Running...';
 		} else {
 			window.close();
 		}
@@ -169,8 +171,10 @@ $(function() {
 									tweetInMilliseconds = queryIndex * (queryTweetMax * 1000 + 200) + j * 1000 + Math.random() * 200;
 								if (j < queryTweetMax) {
 									setTimeout(function() {
-										var numTweet = 1 + j + queryIndex*queryTweetMax;
-										$state.html(searchQuery + ': ' + numTweet + '/' + maxQueries);
+										var numTweet = 1 + j + queryIndex*queryTweetMax,
+											statusString = numTweet + '/' + maxQueries;
+										$state.html(searchQuery + ': ' + statusString);
+										document.title = '(' + statusString + ') Followr - Running...';
 										favoriteTweetIter(j, numTweet);	
 									}, tweetInMilliseconds);
 								}
