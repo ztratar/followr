@@ -18,6 +18,13 @@ $(function() {
 		}
 	});
 
+	$tweetNum.on('change', function() {
+		var val = parseInt($(this).val(), 10);
+		if (val > 100) {
+			$tweetNum.val(100);
+		}
+	});
+
 	$followrForm.submit(function(e) {
 		e.preventDefault();
 
@@ -25,7 +32,9 @@ $(function() {
 			queries = $queries.val(),
 			i;
 
-		numTweets = numTweets || 10;
+		numTweets = numTweets || 20;
+
+		if (numTweets > 100) numTweets = 100;
 
 		queries = queries.split(',');
 		for (i = 0; i < queries.length; i++) {
