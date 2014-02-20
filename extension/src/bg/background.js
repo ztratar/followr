@@ -60,29 +60,42 @@ backend.getTimeLeftBeforeRun = function(cb) {
 
 backend.getNewTweets = function(data, cb) {
 	var i = 0,
-		returnTweets = [],
-		getNewTweetRecur = function(tweetIter) {
-			var tweet = data.tweets[tweetIter];
+		returnTweetBuckets = [],
+		getNewTweetRecur = function(tweetIter, queryIndex) {
+			var tweet = data.tweetBuckets[queryIndex].items[tweetIter];
 
-			if (tweetIter >= data.tweets.length) {
-				cb(returnTweets);
+			if (queryIndex >= data.tweetBuckets.length-1) {
+				cb(returnTweetBuckets);
 			} else {
 				(function() {
 					var tweetId = tweet;
 					chrome.storage.sync.get('tweet-' + tweetId, function(tweetInDb) {
+						// Gross... TODO: fix this
 						if (Object.keys(tweetInDb).length === 0) {
-							returnTweets.push(tweet);
+							returnTweetBuckets[queryIndex].items.push(data.tweetBuckets[queryIndex].items[tweetIter]);
 						}
-						getNewTweetRecur(tweetIter + 1);	
+
+						if (tweetIter >= data.tweetBuckets[queryIndex].items.length-1) {
+							getNewTweetRecur(0, queryIndex+1);	
+						} else {
+							getNewTweetRecur(tweetIter + 1, queryIndex);	
+						}
 					});
 				})();
 			}
 		};
 
-	if (!data.tweets || !data.tweets.length) {
+	for (i = 0; i < data.tweetBuckets.length; i++) {
+		returnTweetBuckets.push({
+			query: data.tweetBuckets[i].query,
+			items: []
+		});
+	}
+
+	if (!data.tweetBuckets || !data.tweetBuckets.length) {
 		cb([]);
 	}
-	getNewTweetRecur(0);
+	getNewTweetRecur(0,0);
 
 	return true;
 };

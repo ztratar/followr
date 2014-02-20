@@ -57,13 +57,13 @@ $(function() {
 			window.close();
 		}
 
-		twitter.getTweets = function(query, cb, options) {
+		twitter.getTweets = function(currentQueryIndex, queries, cb, options) {
 			var url,
-				formattedQuery = encodeURIComponent(query);
+				query = queries[currentQueryIndex];
 
 			options = options || {};
-			url = 'https://twitter.com/i/search/timeline?q=' + formattedQuery + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0';
 
+			url = 'https://twitter.com/i/search/timeline?q=' + encodeURIComponent(query.query) + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0';
 			if (options && options.lastTweetId && options.firstTweetId) {
 				url += '&scroll_cursor=TWEET-'+options.lastTweetId+'-'+options.firstTweetId;
 			}
@@ -74,11 +74,10 @@ $(function() {
 				success: function(data, d) {
 					var itemHTML = data.inner ? data.inner.items_html : undefined,
 						items = itemHTML ? itemHTML.match(/data-item-id="([0-9]{18})/g) : [],
-						numNewItems = 0;
+						numNewItems = 0,
+						totalItems = [],
+						i;
 
-					// Parsed html doesn't map propertly, but this is an
-					// easy hack.
-					//
 					// TODO: make the regexp more accurate.
 					items = $.map(items, function(item, j) {
 						item = item.replace('data-item-id="', '');
@@ -87,23 +86,22 @@ $(function() {
 					items.pop();
 
 					numNewItems = items.length;
-					if (options.existingItems) {
-						items = options.existingItems.concat(items);
-					}
+					queries[currentQueryIndex].items = queries[currentQueryIndex].items.concat(items);
+					items = queries[currentQueryIndex].items;
 
-					// Ensure we have enough tweets to run through em and filter
-					// the used, even when frequency raises.
-					// Pretty hacky, but this should work for all good uses
-					// of this extension. We could add more rigid functionality,
-					// but that would easily open spam.
-					if (items.length < 50 && numNewItems > 10) {
-						twitter.getTweets(query, cb, {
+					if (items.length <= 50 && numNewItems > 10) {
+						// get more items for same query
+						twitter.getTweets(currentQueryIndex, queries, cb, {
 							firstTweetId: items[0],
-							lastTweetId: items[items.length-1],
-							existingItems: items	
+							lastTweetId: items[items.length-1]
 						});
 					} else {
-						cb(items);
+						if (currentQueryIndex < queries.length-1) {
+							// Next query
+							twitter.getTweets(currentQueryIndex+1, queries, cb);
+						} else {
+							cb(queries);
+						}
 					}
 				}
 			});
@@ -127,60 +125,80 @@ $(function() {
 		chrome.runtime.sendMessage({
 			message: 'getSearchQueries'
 		}, function(searchQueries) {
-			// Figure out how many items to go through for each query
-			//
-			// Get that many new items to favorite
-			$.each(searchQueries, function(queryIndex, searchQuery) {
-				// Get results of twitter call
-				twitter.getTweets(searchQuery, function(unfilteredTweets) {
-					// Filter through results to make sure favorites not
-					// already called.
-					
-					chrome.runtime.sendMessage({
-						message: 'getNewTweets',
-						data: {
-							tweets: unfilteredTweets
-						}
-					}, function(tweets) {
-						var favoriteTweetIter = function(tweetNum, totalTweetNum) {
-								var tweetId = tweets[tweetNum];
+			var i;
 
-								chrome.runtime.sendMessage({
-									'message': 'setFavorited',
-									data: {
-										id: tweetId
-									}
-								});
+			// format queries
+			for (i = 0; i < searchQueries.length; i++) {
+				searchQueries[i] = {
+					query: searchQueries[i],
+					items: []
+				};
+			}
 
-								twitter.favoriteTweet(tweetId, function(data) {
-									if (totalTweetNum === maxQueries) {
-										window.close();
-									}
-								});
-							};
+			twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
+				// Filter through results to make sure favorites not
+				// already called.
 
-						if (!tweets.length) {
-							return false;
-						}
+				chrome.runtime.sendMessage({
+					message: 'getNewTweets',
+					data: {
+						tweetBuckets: unfilteredTweetBuckets
+					}
+				}, function(tweetBuckets) {
+					var a,
+						tweetCounter = 0,
+						numTweets = 0,
+						timeInbetweenTweets = 1500,
+						randTweetMarker = [];
 
-						// Slowly favorite tweets over time and with randomness.
-						for (i = 0; i < tweets.length; i++) {
+					if (!tweetBuckets.length) {
+						return false;
+					}
+
+					for (a = 0; a < tweetBuckets.length; a++) {
+						numTweets += tweetBuckets[a].items.length;
+					}
+					if (maxQueries > numTweets) {
+						numTweets = maxQueries;
+					}
+
+					// Slowly favorite tweets over time and with randomness.
+					for (a = 0; a < tweetBuckets.length; a++) {
+						for (i = 0; i < tweetBuckets[a].items.length; i++) {
+
+							tweetCounter++;
+
 							(function() {
 								var j = i,
-									queryTweetMax = Math.floor(maxQueries / searchQueries.length),
-									tweetInMilliseconds = queryIndex * (queryTweetMax * 1000 + 200) + j * 1000 + Math.random() * 200;
-								if (j < queryTweetMax) {
-									setTimeout(function() {
-										var numTweet = 1 + j + queryIndex*queryTweetMax,
-											statusString = numTweet + '/' + maxQueries;
-										$state.html(searchQuery + ': ' + statusString);
-										document.title = '(' + statusString + ') Followr - Running...';
-										favoriteTweetIter(j, numTweet);	
-									}, tweetInMilliseconds);
-								}
+									bucketIndex = a,
+									itemIndex = i,
+									tweetInMilliseconds = tweetCounter * 1600 + Math.random() * 900,
+									progressCounter = 1 + bucketIndex + j * tweetBuckets.length;
+
+								tweetInMilliseconds = timeInbetweenTweets * (bucketIndex + j * tweetBuckets.length);
+
+								setTimeout(function() {
+									var statusString = progressCounter + '/' + numTweets,
+										tweetId = tweetBuckets[bucketIndex].items[itemIndex];
+
+									$state.html(tweetBuckets[bucketIndex].query + ': ' + statusString);
+									document.title = '(' + statusString + ') Followr - Running...';
+
+									chrome.runtime.sendMessage({
+										'message': 'setFavorited',
+										data: {
+											id: tweetId
+										}
+									});
+									twitter.favoriteTweet(tweetId, function(data) {
+										if (progressCounter >= numTweets) {
+											window.close();
+										}
+									});
+								}, tweetInMilliseconds);
 							})();
 						}
-					});
+					}
 				});
 			});
 		});
