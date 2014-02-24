@@ -19,7 +19,7 @@ backend.launchTwitterInBackground = function() {
 			return;
 		}
 		// Store run time in milliseconds
-		chrome.storage.sync.set({
+		chrome.storage.local.set({
 			'lastRun': (new Date()).getTime()
 		});
 		backend.incrementRunCount();
@@ -32,8 +32,8 @@ backend.launchTwitterInBackground = function() {
 };
 
 backend.incrementRunCount = function(cb) {
-	chrome.storage.sync.get('runCount', function(data) {
-		chrome.storage.sync.set({
+	chrome.storage.local.get('runCount', function(data) {
+		chrome.storage.local.set({
 			runCount: (typeof data.runCount === 'number') ? (data.runCount + 1) : 0
 		}, cb);
 	});
@@ -41,7 +41,7 @@ backend.incrementRunCount = function(cb) {
 
 // Backend task to get time last run
 backend.getLastRunTime = function(cb) {
-	chrome.storage.sync.get('lastRun', function(data) {
+	chrome.storage.local.get('lastRun', function(data) {
 		cb(data.lastRun);	
 	});
 };
@@ -69,7 +69,7 @@ backend.getNewTweets = function(data, cb) {
 			} else {
 				(function() {
 					var tweetId = tweet;
-					chrome.storage.sync.get('tweet-' + tweetId, function(tweetInDb) {
+					chrome.storage.local.get('tweet-' + tweetId, function(tweetInDb) {
 						// Gross... TODO: fix this
 						if (Object.keys(tweetInDb).length === 0) {
 							returnTweetBuckets[queryIndex].items.push(data.tweetBuckets[queryIndex].items[tweetIter]);
@@ -101,7 +101,7 @@ backend.getNewTweets = function(data, cb) {
 };
 
 backend.getSearchQueries = function(cb) {
-	chrome.storage.sync.get('searchQueries', function(data) {
+	chrome.storage.local.get('searchQueries', function(data) {
 		cb(data.searchQueries);
 	});
 
@@ -109,7 +109,7 @@ backend.getSearchQueries = function(cb) {
 };
 
 backend.getMaxQueries = function(cb) {
-	chrome.storage.sync.get('maxQueries', function(data) {
+	chrome.storage.local.get('maxQueries', function(data) {
 		cb(data.maxQueries);
 	});
 
@@ -125,7 +125,7 @@ backend.getLoggedInStatus = function(cb) {
 backend.setFavorited = function(data, cb) {
 	var storageObj = {};
 	storageObj['tweet-' + data.id] = true;
-	chrome.storage.sync.set(storageObj);
+	chrome.storage.local.set(storageObj);
 
 	return true;
 };
@@ -133,7 +133,7 @@ backend.setFavorited = function(data, cb) {
 backend.setSearchQueries = function(queries, cb) {
 	queries = queries || [];
 	// TODO: Put an interface to this function
-	chrome.storage.sync.set({
+	chrome.storage.local.set({
 		searchQueries: queries
 	}, cb);
 
@@ -142,7 +142,7 @@ backend.setSearchQueries = function(queries, cb) {
 
 backend.setMaxQueries = function(data, cb) {
 	// TODO: Put an interface to this function
-	chrome.storage.sync.set({
+	chrome.storage.local.set({
 		maxQueries: data
 	}, cb);
 
@@ -213,7 +213,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 // First time run
-chrome.storage.sync.get(undefined, function(data) {
+chrome.storage.local.get(undefined, function(data) {
 	var optionsUrl;
 
 	if (data.hasSetup !== true) {
@@ -229,7 +229,7 @@ chrome.storage.sync.get(undefined, function(data) {
 		backend.launchTwitterInBackground();
 	}
 
-	chrome.storage.sync.set({
+	chrome.storage.local.set({
 		hasSetup: true
 	});
 });

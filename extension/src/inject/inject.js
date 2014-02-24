@@ -146,7 +146,6 @@ $(function() {
 					}
 				}, function(tweetBuckets) {
 					var a,
-						tweetCounter = 0,
 						numTweets = 0,
 						timeInbetweenTweets = 1500,
 						randTweetMarker = [];
@@ -158,24 +157,19 @@ $(function() {
 					for (a = 0; a < tweetBuckets.length; a++) {
 						numTweets += tweetBuckets[a].items.length;
 					}
-					if (maxQueries > numTweets) {
+					if (numTweets > maxQueries) {
 						numTweets = maxQueries;
 					}
 
 					// Slowly favorite tweets over time and with randomness.
 					for (a = 0; a < tweetBuckets.length; a++) {
 						for (i = 0; i < tweetBuckets[a].items.length; i++) {
-
-							tweetCounter++;
-
 							(function() {
 								var j = i,
 									bucketIndex = a,
 									itemIndex = i,
-									tweetInMilliseconds = tweetCounter * 1600 + Math.random() * 900,
-									progressCounter = 1 + bucketIndex + j * tweetBuckets.length;
-
-								tweetInMilliseconds = timeInbetweenTweets * (bucketIndex + j * tweetBuckets.length);
+									progressCounter = 1 + bucketIndex + j * (tweetBuckets.length - 1),
+									tweetInMilliseconds = timeInbetweenTweets * progressCounter;
 
 								setTimeout(function() {
 									var statusString = progressCounter + '/' + numTweets,
