@@ -184,7 +184,7 @@ $(function() {
 		for (a = 0; a < tweetBuckets.length; a++) {
 			numTweets += tweetBuckets[a].items.length;
 		}
-		return Math.min(numTweets, maxQueries);
+		return numTweets;
 	};
 
 	// Figure out which search query to use
@@ -217,7 +217,8 @@ $(function() {
 				chrome.runtime.sendMessage({
 					message: 'getActionsAndReset'
 				}, function(numActions) {
-					numTweets += numActions;
+					maxQueries += numActions;
+					numTweets = Math.min(numTweets, maxQueries);
 
 					if (!tweetBuckets.length) {
 						return false;
