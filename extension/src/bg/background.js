@@ -140,8 +140,10 @@ backend.setSearchQueries = function(queries, cb) {
 	return true;
 };
 
+// Currently hardcoded until more intellgent
+// features create the 'tasteful' aspects
+// of followr.
 backend.setMaxQueries = function(data, cb) {
-	// TODO: Put an interface to this function
 	chrome.storage.local.set({
 		maxQueries: data
 	}, cb);
@@ -150,20 +152,8 @@ backend.setMaxQueries = function(data, cb) {
 };
 
 backend.setOptions = function(data, cb) {
-	var set = 0,
-		respondOnceBothDone = function() {
-			if (set >= 2) {
-				cb(true);
-			}	
-		};
-
-	backend.setMaxQueries(data.numTweets, function() {
-		set++;
-		respondOnceBothDone();	
-	});
 	backend.setSearchQueries(data.queries, function() {
-		set++;
-		respondOnceBothDone();		
+		cb(true);
 	});	
 
 	return true;
