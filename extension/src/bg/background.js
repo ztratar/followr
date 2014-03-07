@@ -110,7 +110,7 @@ backend.getSearchQueries = function(cb) {
 
 backend.getMaxQueries = function(cb) {
 	chrome.storage.local.get('maxQueries', function(data) {
-		cb(data.maxQueries);
+		cb(data.maxQueries || 12);
 	});
 
 	return true;
@@ -165,6 +165,50 @@ backend.setLoggedInStatus = function(data, cb) {
 	return true;
 };
 
+backend.getActionsAndReset = function(cb) {
+	chrome.storage.local.get('numActions', function(data) {
+		data.numActions = (typeof data.numActions === 'number') ? data.numActions : 0;
+		chrome.storage.local.set({
+			'numActions': 0
+		});
+		cb(data.numActions);	
+	});
+
+	return true;
+};
+
+backend.isTweetActedOn = function(data, cb) {
+	chrome.storage.local.get('tweetAction-'+data.id, function(data) {
+		if (data && data['tweetAction-'+data.id]) {
+			cb(true);
+		} else {
+			cb(false);
+		}
+	});
+
+	return true;
+};
+
+backend.setTweetWithAction = function(data, cb) {
+	var storageObj = {};
+	
+	backend.isTweetActedOn(data, function(isTweetActedOn) {
+		if (isTweetActedOn) return false;
+		storageObj['tweetAction-'+data.id] = true;
+		chrome.storage.local.set(storageObj, cb);
+		chrome.storage.local.get('numActions', function(data) {
+			if (typeof data.numActions !== 'number') data.numActions = 0;
+			// Give 2 extra favorites for every reply or retween
+			data.numActions += 3;
+			chrome.storage.local.set({
+				'numActions': data.numActions
+			});
+		});
+	});
+
+	return true;
+};
+
 // -----------------------
 // Run
 // -----------------------
@@ -183,6 +227,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.getMaxQueries(sendResponse);
 			case 'getLoggedInStatus':
 				return backend.getLoggedInStatus(sendResponse);
+			case 'getActionsAndReset':
+				return backend.getActionsAndReset(sendResponse);
 			case 'setFavorited':
 				return backend.setFavorited(data.data, sendResponse);
 			case 'setSearchQueries':
@@ -193,6 +239,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.setOptions(data.data, sendResponse);
 			case 'setLoggedInStatus':
 				return backend.setLoggedInStatus(data.data, sendResponse);
+			case 'setTweetWithAction':
+				return backend.setTweetWithAction(data.data, sendResponse);
 			case 'forceRun':
 				backend.launchTwitterInBackground();
 				return true;

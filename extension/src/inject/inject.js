@@ -2,8 +2,10 @@
 
 $(function() {
 	var onTwitterCalledWithFollowr = (window.location.search.indexOf('?followr=true') !== -1),
-		maxQueries = 20, // default queries
+		maxQueries = 12, // default queries
 		timeInbetweenTweets = 1500,
+		bindScoreToRealUserAction,
+		addToScore,
 		favoriteTweetIter,
 		getNumTweets,
 		twitter = {};
@@ -36,6 +38,31 @@ $(function() {
 			});
 		}
 	});
+
+	addToScore = function(tweetId) {
+		chrome.runtime.sendMessage({
+			'message': 'setTweetWithAction',
+			data: {
+				id: tweetId
+			}
+		});
+	};
+
+	bindScoreToRealUserAction = function() {
+		var bindScoreFunc = function() {
+			var $this = $(this),
+				tweetReply = $(this).closest('div.inline-reply-tweetbox'),
+				tweetElem = tweetReply.length ? tweetReply.prev() : $this.closest('div.tweet'),
+				tweetId = tweetElem.attr('data-tweet-id');
+
+			addToScore(tweetId);
+		};
+
+		$('body').on('submit', '.tweet-form', bindScoreFunc);
+		$('body').on('mouseup', '.tweet-form button.tweet-btn', bindScoreFunc);
+		$('body').on('mousedown', '.retweet', bindScoreFunc);
+	};
+	bindScoreToRealUserAction();
 
 	// if on Twitter page from followr
 	if (!onTwitterCalledWithFollowr) {
@@ -187,21 +214,27 @@ $(function() {
 					numTweets = getNumTweets(tweetBuckets),
 					randTweetMarker = [];
 
-				if (!tweetBuckets.length) {
-					return false;
-				}
+				chrome.runtime.sendMessage({
+					message: 'getActionsAndReset'
+				}, function(numActions) {
+					numTweets += numActions;
 
-				// Slowly favorite tweets over time and with randomness.
-				for (a = 0; a < tweetBuckets.length; a++) {
-					for (i = 0; i < tweetBuckets[a].items.length; i++) {
-						favoriteTweetIter({
-							bucketIndex: a,
-							itemIndex: i,
-							tweetBuckets: tweetBuckets,
-							numTweets: numTweets
-						});	
+					if (!tweetBuckets.length) {
+						return false;
 					}
-				}
+
+					// Slowly favorite tweets over time and with randomness.
+					for (a = 0; a < tweetBuckets.length; a++) {
+						for (i = 0; i < tweetBuckets[a].items.length; i++) {
+							favoriteTweetIter({
+								bucketIndex: a,
+								itemIndex: i,
+								tweetBuckets: tweetBuckets,
+								numTweets: numTweets
+							});	
+						}
+					}
+				});
 			});
 		});
 	});
