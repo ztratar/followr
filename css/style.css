@@ -100,6 +100,13 @@ h1 {
 	box-shadow: 0 0 3px rgba(96, 137, 131, 0.08);
 }
 
+.main-wrap a.download.disabled {
+	pointer-events: none;
+	color: white;
+	background: #585858;
+	border: 1px solid #585858;
+}
+
 .main-wrap a.download i {
 	background: url('../img/chrome.png') 0px 0px;
 	display: inline-block;
