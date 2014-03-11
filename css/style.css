@@ -176,6 +176,10 @@ h1 {
 	opacity: 1;
 }
 
+.tweet-button-wrap {
+	padding: 40px 0 0 34px;
+}
+
 @media (max-height: 720px) {
 	.main {
 		padding-bottom: 140px;
