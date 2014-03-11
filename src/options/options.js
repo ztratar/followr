@@ -6,7 +6,9 @@ $(function() {
 	chrome.runtime.sendMessage({
 		message: 'getSearchQueries'	
 	}, function(data) {
-		$queries.val(data.join(', '));	
+		if (data.length) {
+			$queries.val(data.join(', '));	
+		}
 	});
 
 	$followrForm.submit(function(e) {

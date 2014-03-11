@@ -3,7 +3,7 @@ body, html {
 	font-size: 18px;
 	background: #fbfbfb;
 	min-width: 440px;
-	height: 387px;
+	height: 453px;
 }
 
 .container {
@@ -33,9 +33,9 @@ div.row {
 }
 
 div.save-row {
-	background: #ECF0F7;
 	margin: 20px -30px -10px;
 	padding: 20px 30px;
+	background: #ECF0F7;
 	border-top: 1px solid #DEE0E6;	
 }
 
@@ -123,4 +123,26 @@ div.row input[type="submit"]:hover {
 
 .saved.show span {
 	-webkit-transform: scale(1);
+}
+
+.options-banner {
+	margin: -10px;
+	padding: 20px 30px;	
+	font-size: 14px;
+	min-height: 20px;
+	margin-bottom: 5px;
+	background: #ECF0F7;
+	border-bottom: 1px solid #DEE0E6;	
+}
+
+.options-banner a {
+	outline: 0;
+}
+
+.pull-left {
+	float: left;
+}
+
+.pull-right {
+	float: right;
 }
