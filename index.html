@@ -47,6 +47,8 @@
 						$download.click(function() {
 							chrome.webstore.install(undefined, function() {
 								installed();
+							}, function(data) {
+								console.log(data);	
 							});
 							return false;
 						});	
