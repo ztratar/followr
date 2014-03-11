@@ -1,6 +1,6 @@
 {
   "name": "Followr",
-  "version": "0.3",
+  "version": "0.3.1",
   "manifest_version": 2,
   "description": "A no-frills chrome extension to gain followers on twitter through tasteful automation.",
   "homepage_url": "http://ztratar.github.io/followr/",

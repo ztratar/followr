@@ -11,12 +11,12 @@
 					href="https://chrome.google.com/webstore/detail/followr/phbifpkhlenmpjndnmjppbdhcocdlalk/reviews" target="_blank">Leave a review!</a>
 			</span>
 			<span class="pull-left">
-				<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://ztratar.github.io/followr" data-text="Followr - A chrome extension to tastefully gain followers on twitter" data-related="zachtratar">Tweet</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+				<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://ztratar.github.io/followr" data-text="Check out Followr - a chrome extension that gets you more followers through auto-favoriting" data-related="zachtratar">Tweet</a>
 			</span>
 		</div>
 		<div class="container">
 			<h1>Followr Options</h1>
+			<p>Followr auto-favorites tweets in the background. Clicking run will start the process.</p>
 			<form id="followr-options" action="/">
 				<div class="row">
 					<label>Topics to favorite</label>
@@ -24,12 +24,13 @@
 					<p>Separate topics by commas (ie Hackathons, Running, http://news.ycombinator.com)</p>
 				</div>
 				<div class="row save-row cf">
-					<input type="submit" class="save-options" value="Save">	
+					<input type="submit" class="save-options" value="Save and run">	
 				</div>
 			</form>
 		</div>
 		<div class="saved"><span>Saved!</span></div>
 		<script type="text/javascript" src="/src/inject/jquery.js"></script>
 		<script type="text/javascript" src="/src/options/options.js"></script>
+		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 	</body>
 </html>
