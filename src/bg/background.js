@@ -5,7 +5,8 @@
 // -----------------------
 
 var backend = {},
-	loggedIn = true;
+	loggedIn = true,
+	tabOnlineCheck = false;
 
 // Launch Twitter function
 backend.launchTwitterInBackground = function() {
@@ -15,6 +16,8 @@ backend.launchTwitterInBackground = function() {
 
 	// Only run if queries exist
 	backend.getSearchQueries(function(searchQueries) {
+		var tabId;
+
 		if (!searchQueries || !searchQueries.length) {
 			return;
 		}
@@ -24,11 +27,26 @@ backend.launchTwitterInBackground = function() {
 		});
 		backend.incrementRunCount();
 
+		tabOnlineCheck = false;
 		chrome.tabs.create({
 			url: 'http://twitter.com/?followr=true',
 			active: false
+		}, function(tab) {
+			tabId = tab.id;	
 		});
+
+		setTimeout(function() {
+			if (!tabOnlineCheck) {
+				chrome.tabs.remove(tabId);
+			}	
+		}, 5000);
 	});
+};
+
+backend.runningStatus = function() {
+	tabOnlineCheck = true;
+
+	return true;
 };
 
 backend.incrementRunCount = function(cb) {
@@ -243,6 +261,9 @@ chrome.runtime.onMessage.addListener(
 				return backend.setTweetWithAction(data.data, sendResponse);
 			case 'forceRun':
 				backend.launchTwitterInBackground();
+				return true;
+			case 'runningStatus':
+				backend.runningStatus();
 				return true;
 			default:
 				return false;

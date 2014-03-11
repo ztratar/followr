@@ -64,10 +64,14 @@ $(function() {
 	};
 	bindScoreToRealUserAction();
 
-	// if on Twitter page from followr
+	// Only keep running if on Twitter page from followr
 	if (!onTwitterCalledWithFollowr) {
 		return false;
 	}
+
+	chrome.runtime.sendMessage({
+		'message': 'runningStatus'
+	});
 
 	// Set Up Twitter API Calls
 	twitter.authenticity_token = $('input[name="authenticity_token"]').val();
