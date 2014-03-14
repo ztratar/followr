@@ -80,13 +80,16 @@ backend.getNewTweets = function(data, cb) {
 	var i = 0,
 		returnTweetBuckets = [],
 		getNewTweetRecur = function(tweetIter, queryIndex) {
-			var tweet = data.tweetBuckets[queryIndex].items[tweetIter];
+			var tweet;
 
-			if (queryIndex >= data.tweetBuckets.length-1) {
+			if (queryIndex >= data.tweetBuckets.length) {
 				cb(returnTweetBuckets);
 			} else {
+				tweet = data.tweetBuckets[queryIndex].items[tweetIter];
+
 				(function() {
 					var tweetId = tweet;
+
 					chrome.storage.local.get('tweet-' + tweetId, function(tweetInDb) {
 						// Gross... TODO: fix this
 						if (Object.keys(tweetInDb).length === 0) {
