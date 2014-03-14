@@ -35,11 +35,12 @@ backend.launchTwitterInBackground = function() {
 			tabId = tab.id;	
 		});
 
+		// Clase tab if the code never ran
 		setTimeout(function() {
 			if (!tabOnlineCheck) {
 				chrome.tabs.remove(tabId);
 			}	
-		}, 5000);
+		}, 15000);
 	});
 };
 

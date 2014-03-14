@@ -165,10 +165,6 @@ $(function() {
 			var statusString = progressCounter + '/' + options.numTweets,
 				tweetId = options.tweetBuckets[options.bucketIndex].items[options.itemIndex];
 
-			if (progressCounter >= options.numTweets) {
-				window.close();
-			}
-
 			$state.html(options.tweetBuckets[options.bucketIndex].query + ': ' + statusString);
 			document.title = '(' + statusString + ') Followr - Running...';
 
@@ -179,6 +175,12 @@ $(function() {
 				}
 			});
 			twitter.favoriteTweet(tweetId);
+
+			// Last tweet send, close the window
+			if (progressCounter >= options.numTweets) {
+				window.close();
+			}
+
 		}, tweetInMilliseconds);
 	};
 
@@ -206,6 +208,11 @@ $(function() {
 		}
 
 		twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
+
+			// If no tweets are returned from twitter, however unlikely,
+			// exit.
+			if (getNumTweets(unfilteredTweetBuckets) < 1) window.close();
+
 			// Filter through results to make sure favorites not
 			// already called.
 			chrome.runtime.sendMessage({
@@ -224,9 +231,7 @@ $(function() {
 					maxQueries += numActions;
 					numTweets = Math.min(numTweets, maxQueries);
 
-					if (!tweetBuckets.length) {
-						return false;
-					}
+					if (!tweetBuckets.length || numTweets < 1) window.close();
 
 					// Slowly favorite tweets over time and with randomness.
 					for (a = 0; a < tweetBuckets.length; a++) {
