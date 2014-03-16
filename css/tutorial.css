@@ -1,14 +1,37 @@
+html {
+	height: 100%;
+}
+
 .tutorial {
 	text-align: center;
+	font-family: 'AB', 'Open Sans', sans-serif;
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+
+.tutorial .center-wrap {
+	display: table-cell;
+	vertical-align: middle;
 }
 
 .tutorial #logo {
 	color: #c5c5c5;	
+	font-size: 68px;
+	letter-spacing: -2px;
+	margin: 0;
+}
+
+.tutorial #logo span {
+	font-style: setup;
+	font-weight: 400;
+	color: #ddd;
 }
 
 .tutorial ul {
 	display: block;
-	padding: 0 50px;
+	padding: 0;
+	margin: 20px 0 30px;
 	text-align: center;
 }
 
@@ -26,8 +49,64 @@
 	display: inline-block;
 }
 
+.tutorial ul li p {
+	padding: 0 15px;
+}
+
 .tutorial h2 {
 	color: #1893ad;
 	font-size: 32px;
-	font-weight: 600;
+	font-weight: 400;
+	font-family: 'AH';
+}
+
+@media (max-width: 1090px) {
+	.tutorial ul li {
+		margin: 0 40px;
+	}
+}
+
+@media (max-width: 970px) {
+	.tutorial ul li {
+		margin: 0 20px;
+	}
+}
+
+@media (max-width: 850px) {
+	.tutorial ul li {
+		-webkit-transform: scale(0.8);
+		margin: 0;
+	}	
+}
+
+@media (max-width: 730px) {
+	.tutorial {
+		padding: 60px 0 80px;
+	}
+
+	.tutorial #logo {
+		font-size: 50px;
+		margin-bottom: 20px;
+	}
+
+	h2 {
+		margin: 0;
+	}
+
+	.tutorial ul li p {
+		margin: 10px 0 0;
+		padding: 0 50px;
+	}
+
+	.tutorial ul li {
+		width: 100%;
+		margin: 0 0 40px 0;
+		-webkit-transform: scale(1);
+	}
+}
+
+@media (max-height: 575px) {
+	.tutorial .center-wrap ul {
+		margin: 5px 0 14px;
+	}
 }
