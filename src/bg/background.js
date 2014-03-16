@@ -280,7 +280,7 @@ chrome.storage.local.get(undefined, function(data) {
 	var optionsUrl;
 
 	if (data.hasSetup !== true) {
-		optionsUrl = chrome.extension.getURL('options.html');
+		optionsUrl = chrome.extension.getURL('src/tutorial/tutorial.html');
 		chrome.tabs.query({ url: optionsUrl }, function(tabs) {
 			if (tabs.length) {
 				chrome.tabs.update(tabs[0].id, { active: true });

@@ -11,7 +11,8 @@
   },
   "background": {
 	"pages": [
-      "src/bg/background.html"
+      "src/bg/background.html",
+      "src/tutorial/tutorial.html"
 	],
     "scripts": [
       "src/bg/background.js"

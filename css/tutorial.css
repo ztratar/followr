@@ -1,0 +1,33 @@
+.tutorial {
+	text-align: center;
+}
+
+.tutorial #logo {
+	color: #c5c5c5;	
+}
+
+.tutorial ul {
+	display: block;
+	padding: 0 50px;
+	text-align: center;
+}
+
+.tutorial ul li {
+	display: inline-block;
+	width: 240px;
+	margin: 0 60px;
+	text-align: center;
+	vertical-align: top;
+}
+
+.tutorial ul li img {
+	width 180px;
+	height: 180px;
+	display: inline-block;
+}
+
+.tutorial h2 {
+	color: #1893ad;
+	font-size: 32px;
+	font-weight: 600;
+}
