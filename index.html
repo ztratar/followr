@@ -13,8 +13,12 @@
 			<div class="main-wrap">
 				<h1>followr</h1>
 				<p>
-					A no-frills chrome extension to gain followers on twitter through tasteful automation. <a href="http://zachtratar.com/followr.html">Why?</a>
+					A no-frills chrome extension to gain followers on twitter through tasteful automation.
 				</p>
+				<ul class="nav">
+					<li><a href="http://zachtratar.com/followr.html" target="_blank">Why?</a></li>
+					<li><a class="show-tutorial" href="#">How?</a></li>
+				</ul>
 				<a href="#" class="download">
 					<i class="icon-chrome"></i> Download for Chrome
 				</a>
@@ -37,9 +41,35 @@
 				  allowtransparency="true" frameborder="0" scrolling="0" width="140" height="40"></iframe>
 			</div>
 		</div>
+		<div class="tutorial">
+			<div class="center-wrap">
+				<ul>
+					<li>
+						<img src="./img/pick-interests.png" alt="Pick Interests">
+						<h2>Pick Interests</h2>
+						<p>Topics, current events, websites - anything</p>
+					</li>
+					<li>
+						<img src="./img/favorite.png" alt="Sit Back, Relax">
+						<h2>Sit Back, Relax</h2>
+						<p>Followr automatically finds great tweets and favorites a couple</p>
+					</li>
+					<li>
+						<img src="./img/gain-followers.png" alt="Gain Followers">
+						<h2>Gain Followers</h2>
+						<p>Some people will think you're interesting and follow you</p>
+					</li>
+				</ul>
+				<div class="next-button-wrap">
+					<a href="#" class="btn next-button">Back</a>
+				</div>
+			</div>
+		</div>
+
 		<script type="text/javascript">
 			$(function() {
 				var $download = $('a.download'),
+					$tutorial = $('.tutorial'),
 					installed = function() {
 						$download.html('Installed! Happy tweeting.').addClass('disabled');
 					};
@@ -60,6 +90,10 @@
 				} else {
 					$download.html('Only available for Chrome').addClass('disabled');
 				}
+
+				$('.next-button, .show-tutorial').on('click', function() {
+					$tutorial.toggleClass('show');
+				});
 			});
 
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
