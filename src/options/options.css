@@ -1,9 +1,14 @@
+@font-face{
+	font-family: 'Lato';
+	src: url(data:font/ttf;base64,) format('truetype');
+}
+
 body, html {
-	font-family: 'Open Sans', sans-serif;
+	font-family: 'Lato', sans-serif;
 	font-size: 18px;
-	background: #fbfbfb;
+	background: #fff;
 	min-width: 440px;
-	height: 453px;
+	height: 400px;
 }
 
 .container {
@@ -21,6 +26,7 @@ form {
 h1 {
 	color: #5F6064;
 	font-size: 32px;
+	margin: 17px 0 10px 0;
 }
 
 p {
@@ -29,14 +35,12 @@ p {
 
 div.row {
 	display: block;
-	padding: 14px 0;
+	padding: 18px 0;
 }
 
 div.save-row {
-	margin: 20px -30px -10px;
-	padding: 20px 30px;
-	background: #ECF0F7;
-	border-top: 1px solid #DEE0E6;	
+	margin: 0 -30px;
+	padding: 0 30px 0;
 }
 
 div.row label {
@@ -48,8 +52,12 @@ div.row label {
 	margin: 0 0 8px 0;
 }
 
+div.row textarea {
+	min-height: 90px;
+}
+
 div.row textarea, div.row input {
-	font-family: 'Open Sans';
+	font-family: 'Lato';
 	color: #282828;
 	width: 100%;
 	resize: none;
@@ -80,7 +88,7 @@ div.row input[type="submit"] {
 	letter-spacing: 1px;
 	border-bottom: 2px solid #17BE54;
 	text-shadow: 0 1px 2px rgba(0,0,0,.24);
-	font-family: 'Open Sans', san-serif;
+	font-family: 'Lato-Bold', san-serif;
 	box-shadow: 0 0 5px rgba(13, 116, 51, 0.04);
 }
 
@@ -127,12 +135,15 @@ div.row input[type="submit"]:hover {
 
 .options-banner {
 	margin: -10px;
-	padding: 20px 30px;	
+	padding: 18px 30px 8px;	
 	font-size: 14px;
 	min-height: 20px;
 	margin-bottom: 5px;
-	background: #ECF0F7;
-	border-bottom: 1px solid #DEE0E6;	
+	background: #F3F5F8;
+}
+
+.options-banner span {
+	opacity: 0.8;	
 }
 
 .options-banner a {
