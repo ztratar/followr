@@ -29,11 +29,17 @@ backend.launchTwitterInBackground = function() {
 
 		tabOnlineCheck = false;
 		chrome.tabs.create({
-			url: 'http://twitter.com/?followr=true',
+			url: 'http://twitter.com/',
 			active: false
 		}, function(tab) {
 			tabId = tab.id;	
 		});
+
+		setTimeout(function() {
+			chrome.tabs.executeScript(tabId, {
+				code: 'window.runFollowr()'
+			});
+		}, 5000);
 
 		// Clase tab if the code never ran
 		setTimeout(function() {
@@ -297,5 +303,8 @@ chrome.storage.local.get(undefined, function(data) {
 	});
 });
 
-// Favorite query every 30 minutes
-setInterval(backend.launchTwitterInBackground, 1000 * 60 * 30);
+// Favorite query every 30 minutes with
+// randomness.
+setInterval(function() {
+	setTimeout(backend.launchTwitterInBackground, (1000 * 60 * 15 * Math.random()));
+}, (1000 * 60 * 30));

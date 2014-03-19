@@ -27,7 +27,8 @@
   "permissions": [
 	"storage",
 	"unlimitedStorage",
-    "http://twitter.com/*"
+    "http://twitter.com/*",
+    "https://twitter.com/*"
   ],
   "web_accessible_resources": [
     "src/inject/jquery.min.map"
