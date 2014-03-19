@@ -4,7 +4,7 @@ html {
 
 .tutorial {
 	text-align: center;
-	font-family: 'AB', 'Open Sans', sans-serif;
+	font-family: 'Lato', sans-serif;
 	display: table;
 	height: 100%;
 	width: 100%;
@@ -26,6 +26,10 @@ html {
 	font-style: setup;
 	font-weight: 400;
 	color: #ddd;
+}
+
+.tutorial .btn {
+	padding: 15px 50px 16px;
 }
 
 .tutorial ul {
@@ -57,7 +61,77 @@ html {
 	color: #1893ad;
 	font-size: 32px;
 	font-weight: 400;
-	font-family: 'AH';
+	font-family: 'Lato-Bold';
+}
+
+.tutorial .step-1 {
+	opacity: 1;
+	-webkit-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+
+	-webkit-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+}
+
+.tutorial .step-1.hide {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.tutorial .step-2 {
+	opacity: 0;
+	pointer-events: none;
+	position: fixed;
+	top: 157px;
+	right: 187px;
+	line-height: 20px;
+	font-size: 34px;
+	color: #398e9f;
+	font-family: 'Lato-Bold';
+	-webkit-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+
+	-webkit-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+}
+
+.tutorial .step-2.show {
+	opacity: 1;
+	top: 147px;
+	right: 177px;
+}
+
+.tutorial .step-2 span img {
+	vertical-align: middle;
+	margin: 0 8px;
+}
+
+.tutorial .step-2 img.arrow {
+	position: fixed;
+	top: 46px;
+	right: 50px;
+	-webkit-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+
+	-webkit-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+}
+
+.tutorial .step-2.show img.arrow {
+	top: 40px;
+	right: 44px;
 }
 
 @media (max-width: 1090px) {

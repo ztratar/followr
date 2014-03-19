@@ -48,7 +48,9 @@ $(function() {
 		return false;
 	});
 
+	// Default focus only applies on popup when delayed
 	$queries.focus();
+	setTimeout(function () { $queries.focus(); }, 300);
 });
 
 var _gaq = _gaq || [];
