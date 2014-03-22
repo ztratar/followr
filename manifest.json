@@ -15,6 +15,7 @@
       "src/tutorial/tutorial.html"
 	],
     "scripts": [
+      "src/inject/underscore.js",
       "src/bg/background.js"
     ],
     "persistent": true
@@ -31,7 +32,8 @@
     "https://twitter.com/*"
   ],
   "web_accessible_resources": [
-    "src/inject/jquery.min.map"
+    "src/inject/jquery.min.map",
+	"src/inject/underscore.min.map"
   ],
   "content_scripts": [
     {

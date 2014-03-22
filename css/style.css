@@ -62,8 +62,18 @@ table.buckets span.status span {
 	top: -1px;
 	bottom: -1px;
 	left: -1px;
-	width: 5px;
+	padding: 0 2px;
+	width: 0;
 	position: absolute;
+	-webkit-transition: all .24s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition: all .24s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition: all .24s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition: all .24s cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+
+	-webkit-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
 }
 
 table.buckets tr td.statusNum {

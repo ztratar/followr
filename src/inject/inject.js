@@ -156,14 +156,19 @@ $(function() {
 		};
 
 		favoriteTweetIter = function(options) {
-			var progressCounter = 1 + options.bucketIndex + options.itemIndex * (options.tweetBuckets.length - 1),
-				tweetInMilliseconds = timeInbetweenTweets * progressCounter;
+			var progressCounter = (1 + options.bucketIndex) + options.itemIndex * options.tweetBuckets.length,
+				tweetInMilliseconds = timeInbetweenTweets * progressCounter,
+				statusString = progressCounter + '/' + options.numTweets;
 
 			setTimeout(function() {
-				var statusString = progressCounter + '/' + options.numTweets,
-					tweetId = options.tweetBuckets[options.bucketIndex].items[options.itemIndex];
+				var tweetId = options.tweetBuckets[options.bucketIndex].items[options.itemIndex],
+					$statusNum = options.templates[options.bucketIndex].find('td.statusNum');	
 
-				$state.html(options.tweetBuckets[options.bucketIndex].query + ': ' + statusString);
+				options.templates[options.bucketIndex].find('span.status span').css({
+					width: Math.floor(200 * ((options.itemIndex+1)/options.tweetBuckets[options.bucketIndex].items.length))
+				});
+				$statusNum.html((options.itemIndex+1)+'/'+options.tweetBuckets[options.bucketIndex].items.length);
+
 				document.title = '(' + statusString + ') Followr - Running...';
 
 				chrome.runtime.sendMessage({
@@ -196,7 +201,8 @@ $(function() {
 			message: 'getSearchQueries'
 		}, function(searchQueries) {
 			var i,
-				itemTemplate;
+				itemTemplate,
+				templates = [];
 
 			// format queries
 			for (i = 0; i < searchQueries.length; i++) {
@@ -210,21 +216,17 @@ $(function() {
 			itemTemplate = _.template('<tr><td class="query"><%- query %></td><td><span class="status"><span></span></span></td><td class="statusNum">0/0</td></tr>');
 			_.each(searchQueries, function(searchQuery, queryIndex) {
 				var itemElement = itemTemplate(searchQuery);
-				searchQueries[queryIndex].$elem = $(itemElement)[0];
-				$buckets.append(searchQueries[queryIndex].$elem);
+				templates[queryIndex] = $(itemElement);
+				$buckets.append(templates[queryIndex]);
 			});
 
-			debugger;
-
 			twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
-
 				// If no tweets are returned from twitter, however unlikely,
 				// exit.
 				if (getNumTweets(unfilteredTweetBuckets) < 1) window.close();
 
 				// Filter through results to make sure favorites not
 				// already called.
-				debugger;
 				chrome.runtime.sendMessage({
 					message: 'getNewTweets',
 					data: {
@@ -232,35 +234,28 @@ $(function() {
 					}
 				}, function(tweetBuckets) {
 					var a,
+						i,
 						numTweets = getNumTweets(tweetBuckets),
-						randTweetMarker = [];
+						randTweetMarker = [],
+						$statusNum;
 
-					// New tweets found, update interface
-					_.each(tweetBuckets, function(tweetBucket, tweetBucketIndex) {
-						var $statusNum = searchQueries[tweetBucketIndex].$elem.find('td.statusNum');	
-						$statusNum.html('0/'+tweetBucket.items.length);
-					});
+					if (!tweetBuckets.length || numTweets < 1) window.close();
 
-					chrome.runtime.sendMessage({
-						message: 'getActionsAndReset'
-					}, function(numActions) {
-						maxQueries += numActions;
-						numTweets = Math.min(numTweets, maxQueries);
+					// Slowly favorite tweets over time and with randomness.
+					for (a = 0; a < tweetBuckets.length; a++) {
 
-						if (!tweetBuckets.length || numTweets < 1) window.close();
+						templates[a].find('td.statusNum').html('0/'+tweetBuckets[a].items.length);
 
-						// Slowly favorite tweets over time and with randomness.
-						for (a = 0; a < tweetBuckets.length; a++) {
-							for (i = 0; i < tweetBuckets[a].items.length; i++) {
-								favoriteTweetIter({
-									bucketIndex: a,
-									itemIndex: i,
-									tweetBuckets: tweetBuckets,
-									numTweets: numTweets
-								});	
-							}
+						for (i = 0; i < tweetBuckets[a].items.length; i++) {
+							favoriteTweetIter({
+								bucketIndex: a,
+								itemIndex: i,
+								tweetBuckets: tweetBuckets,
+								numTweets: numTweets,
+								templates: templates
+							});	
 						}
-					});
+					}
 				});
 			});
 		});

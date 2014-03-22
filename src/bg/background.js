@@ -86,11 +86,41 @@ backend.getTimeLeftBeforeRun = function(cb) {
 backend.getNewTweets = function(data, cb) {
 	var i = 0,
 		returnTweetBuckets = [],
+		trimBuckets = function(tweetBuckets) {
+			backend.getMaxQueries(function(maxQueries) {
+				backend.getActionsAndReset(function(numActions) {
+					maxQueries += numActions;
+					var numTweets = _.reduce(_.map(tweetBuckets, function(tweetBucket) {
+							return tweetBucket.items.length;
+						}), function(memo, num) {
+							return memo + num;
+						}),
+						bucket;
+					maxQueries = Math.min(numTweets, maxQueries);
+
+					maxIndices = [];
+					for (var i = 0; i < maxQueries; i++) {
+						bucket = i % 3;
+						if (typeof maxIndices[bucket] === 'number') {
+							maxIndices[bucket]++;
+						} else {
+							maxIndices[bucket] = 1;
+						}
+					}
+
+					_.each(tweetBuckets, function(tweetBucket, tbIndex) {
+						tweetBuckets[tbIndex].items = tweetBucket.items.slice(0, maxIndices[tbIndex]);
+					});
+					
+					cb(tweetBuckets);
+				});
+			});
+		},
 		getNewTweetRecur = function(tweetIter, queryIndex) {
 			var tweet;
 
 			if (queryIndex >= data.tweetBuckets.length) {
-				cb(returnTweetBuckets);
+				trimBuckets(returnTweetBuckets);
 			} else {
 				tweet = data.tweetBuckets[queryIndex].items[tweetIter];
 
