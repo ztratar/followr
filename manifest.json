@@ -40,12 +40,10 @@
 		"https://twitter.com/*"
       ],
       "css": [
-		"css/general.css",
         "css/style.css"
       ],
       "js": [
         "src/inject/jquery.js",
-        "src/inject/underscore.js",
         "src/inject/inject.js"
       ]
     }

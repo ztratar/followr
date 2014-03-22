@@ -76,15 +76,13 @@ $(function() {
 			// Set up the status interface
 			var $followr = $('<div class="followr"></div>'),
 				$followrWrap = $('<div class="followr-wrap"></div>'),
-				$state = $('<span id="followr-state"></span>'),
-				$buckets = $('<table class="buckets"></table>'),
+				$state = $('<span id="followr-state">Loading...</span>'),
 				$description = $('<p class="state-descript">Favoriting some tweets!</p>');
 
 			$followr.appendTo($('body'));
 			$followrWrap.appendTo($followr);
 			$description.appendTo($followrWrap);
 			$state.appendTo($followrWrap);
-			$state.append($buckets);
 
 			document.title = 'Followr - Running...';
 		} else {
@@ -195,8 +193,7 @@ $(function() {
 		chrome.runtime.sendMessage({
 			message: 'getSearchQueries'
 		}, function(searchQueries) {
-			var i,
-				itemTemplate;
+			var i;
 
 			// format queries
 			for (i = 0; i < searchQueries.length; i++) {
@@ -206,16 +203,6 @@ $(function() {
 				};
 			}
 
-			// Show search queries
-			itemTemplate = _.template('<tr><td class="query"><%- query %></td><td><span class="status"><span></span></span></td><td class="statusNum">0/0</td></tr>');
-			_.each(searchQueries, function(searchQuery, queryIndex) {
-				var itemElement = itemTemplate(searchQuery);
-				searchQueries[queryIndex].$elem = $(itemElement)[0];
-				$buckets.append(searchQueries[queryIndex].$elem);
-			});
-
-			debugger;
-
 			twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
 
 				// If no tweets are returned from twitter, however unlikely,
@@ -224,7 +211,6 @@ $(function() {
 
 				// Filter through results to make sure favorites not
 				// already called.
-				debugger;
 				chrome.runtime.sendMessage({
 					message: 'getNewTweets',
 					data: {
@@ -234,12 +220,6 @@ $(function() {
 					var a,
 						numTweets = getNumTweets(tweetBuckets),
 						randTweetMarker = [];
-
-					// New tweets found, update interface
-					_.each(tweetBuckets, function(tweetBucket, tweetBucketIndex) {
-						var $statusNum = searchQueries[tweetBucketIndex].$elem.find('td.statusNum');	
-						$statusNum.html('0/'+tweetBucket.items.length);
-					});
 
 					chrome.runtime.sendMessage({
 						message: 'getActionsAndReset'
