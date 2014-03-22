@@ -41,6 +41,13 @@ $(function() {
 				chrome.runtime.sendMessage({
 					message: 'forceRun'
 				});
+				chrome.tabs.query({
+					title: 'Followr Tutorial'
+				}, function(tabs) {
+					if (tabs && tabs[0] && tabs[0].id) {
+						chrome.tabs.remove(tabs[0].id);
+					}
+				});
 				window.close();
 			}, 840);
 		});
