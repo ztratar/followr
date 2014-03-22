@@ -78,7 +78,7 @@ $(function() {
 				$followrWrap = $('<div class="followr-wrap"></div>'),
 				$state = $('<span id="followr-state"></span>'),
 				$buckets = $('<table class="buckets"></table>'),
-				$description = $('<p class="state-descript">Favoriting some tweets!</p>');
+				$description = $('<p class="state-descript"><img src="'+chrome.extension.getURL('/img/loader.gif')+'"> Loading tweets...</p>');
 
 			$followr.appendTo($('body'));
 			$followrWrap.appendTo($followr);
@@ -241,10 +241,13 @@ $(function() {
 
 					if (!tweetBuckets.length || numTweets < 1) window.close();
 
+					$description.html('Favoriting some tweets!');
+
 					// Slowly favorite tweets over time and with randomness.
 					for (a = 0; a < tweetBuckets.length; a++) {
 
 						templates[a].find('td.statusNum').html('0/'+tweetBuckets[a].items.length);
+						templates[a].addClass('show');
 
 						for (i = 0; i < tweetBuckets[a].items.length; i++) {
 							favoriteTweetIter({

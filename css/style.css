@@ -26,6 +26,10 @@
 	font-size: 20px;
 }
 
+.followr-wrap p.state-descript img {
+	margin-right: 10px;
+}
+
 table.buckets {
 	margin: 0 auto;
 	padding: 0;
@@ -34,6 +38,24 @@ table.buckets {
 table.buckets tr {
 	padding: 16px 0;
 	height: 56px;
+	opacity: 0;sdkfj
+			transform: translate3d(0, 14px, 0);
+	-webkit-transform: translate3d(0, 14px, 0);
+	-webkit-transition: all .32s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition: all .32s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition: all .32s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition: all .32s cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+
+	-webkit-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+	   -moz-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+		 -o-transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); 
+			transition-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860); /* easeInOutCirc */
+}
+
+table.buckets tr.show {
+	opacity: 1;
+			transform: translate3d(0, 0, 0);
+	-webkit-transform: translate3d(0, 0, 0);
 }
 
 table.buckets tr td.query {
