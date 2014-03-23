@@ -5,14 +5,11 @@
 		<link rel="stylesheet" href="/src/options/options.css">
 	</head>
 	<body>
-		<div class="options-banner cf">
-			<span class="pull-right">
-				Like Followr? <a
-					href="https://chrome.google.com/webstore/detail/followr/phbifpkhlenmpjndnmjppbdhcocdlalk/reviews" target="_blank">Leave a review!</a>
-			</span>
-		</div>
+		<ul class="options-nav">
+			<li><a href="#" class="active">Setup</a></li>
+			<li><a href="#">History</a></li>
+		</ul>
 		<div class="container">
-			<h1>followr options</h1>
 			<form id="followr-options" action="/">
 				<div class="row">
 					<label>Topics to favorite</label>
@@ -20,9 +17,15 @@
 					<p>Separate topics by commas (ie Hackathons, Running, http://news.ycombinator.com)</p>
 				</div>
 				<div class="row save-row cf">
-					<input type="submit" class="save-options" value="Save and run">	
+					<input type="submit" class="save-options" value="Start">	
 				</div>
 			</form>
+			<div class="options-banner cf">
+				<span class="pull-right">
+					Like Followr? <a
+						href="https://chrome.google.com/webstore/detail/followr/phbifpkhlenmpjndnmjppbdhcocdlalk/reviews" target="_blank">Leave a review!</a>
+				</span>
+			</div>
 		</div>
 		<div class="saved"><span>Saved!</span></div>
 		<script type="text/javascript" src="/src/inject/jquery.js"></script>
