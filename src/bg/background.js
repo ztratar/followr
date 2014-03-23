@@ -100,7 +100,7 @@ backend.getNewTweets = function(data, cb) {
 
 					maxIndices = [];
 					for (var i = 0; i < maxQueries; i++) {
-						bucket = i % 3;
+						bucket = i % tweetBuckets.length;
 						if (typeof maxIndices[bucket] === 'number') {
 							maxIndices[bucket]++;
 						} else {

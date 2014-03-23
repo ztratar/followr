@@ -55,6 +55,7 @@ ul.options-nav li a {
 	color: #777;
 	font-family: 'Lato-Bold';
 	font-size: 14px;
+	outline: none;
 }
 
 ul.options-nav li a.active {

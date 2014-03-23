@@ -79,7 +79,7 @@ table.buckets span.status {
 }
 
 table.buckets span.status span {
-	background: rgb(17, 202, 17);
+	background: #3498db;
 	border-radius: 100px 5px 5px 100px;
 	top: -1px;
 	bottom: -1px;
