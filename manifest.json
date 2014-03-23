@@ -34,7 +34,7 @@
   "web_accessible_resources": [
 	"img/loader.gif",
     "src/inject/jquery.min.map",
-	"src/inject/underscore.min.map"
+	"src/inject/underscore-min.map"
   ],
   "content_scripts": [
     {

@@ -117,18 +117,13 @@ backend.getNewTweets = function(data, cb) {
 			});
 		},
 		getNewTweetRecur = function(tweetIter, queryIndex) {
-			var tweet;
-
 			if (queryIndex >= data.tweetBuckets.length) {
 				trimBuckets(returnTweetBuckets);
 			} else {
-				tweet = data.tweetBuckets[queryIndex].items[tweetIter];
-
 				(function() {
-					var tweetId = tweet;
+					var tweet = data.tweetBuckets[queryIndex].items[tweetIter];
 
-					chrome.storage.local.get('tweet-' + tweetId, function(tweetInDb) {
-						// Gross... TODO: fix this
+					chrome.storage.local.get('tweet-' + tweet.id, function(tweetInDb) {
 						if (Object.keys(tweetInDb).length === 0) {
 							returnTweetBuckets[queryIndex].items.push(data.tweetBuckets[queryIndex].items[tweetIter]);
 						}
@@ -180,10 +175,63 @@ backend.getLoggedInStatus = function(cb) {
 	return true;
 };
 
-backend.setFavorited = function(data, cb) {
-	var storageObj = {};
-	storageObj['tweet-' + data.id] = true;
-	chrome.storage.local.set(storageObj);
+backend.setFollowersAndConversions = function(followers, cb) {
+	chrome.storage.local.get(undefined, function(data) {
+		var storageObj = {};
+
+		// Go through followers
+		_.each(followers, function(follower) {
+			var followerKey = 'followed-by-' + follower,
+				searchQueryKey;
+
+			// Check if new follower
+			if (!data[followerKey]) {
+				storageObj[followerKey] = true;
+
+				// Find last tweet favorited by user, get query used
+				for (var dataKey in data) {
+					if (dataKey.indexOf('twitter-') !== -1 &&
+						data[dataKey].query &&
+						data[dataKey].user &&
+						data[dataKey].user.id === follower) {
+							// Store conversion
+							searchQueryKey = 'searchQuery-'+data[dataKey].query.replace(' ','_');
+							if (data[searchQueryKey]) {
+								if (!storageObj[searchQueryKey]) {
+									storageObj[searchQueryKey] = data[searchQueryKey];
+								}
+								storageObj[searchQueryKey].numConversions++;
+							}
+							break;
+					}
+				}
+			}
+		});
+		chrome.storage.local.set(storageObj, function(resp) {
+			cb(resp);
+		});
+	});
+
+	return true;
+};
+
+backend.setFavorited = function(tweetData, cb) {
+	var storageObj = {},
+		searchQueryKey = 'searchQuery-'+tweetData.query.replace(' ','_');
+
+	chrome.storage.local.get(searchQueryKey, function(data) {
+		if (data[searchQueryKey]) {
+			storageObj[searchQueryKey] = data[searchQueryKey];
+			storageObj[searchQueryKey].numFavorited++;	
+		} else {
+			storageObj[searchQueryKey] = {
+				numFavorited: 1,
+				numConversions: 0
+			};
+		}
+		storageObj['tweet-' + tweetData.id] = tweetData;
+		chrome.storage.local.set(storageObj);
+	});
 
 	return true;
 };
@@ -299,6 +347,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.setLoggedInStatus(data.data, sendResponse);
 			case 'setTweetWithAction':
 				return backend.setTweetWithAction(data.data, sendResponse);
+			case 'setFollowersAndConversions':
+				return backend.setFollowersAndConversions(data.data, sendResponse);
 			case 'forceRun':
 				backend.launchTwitterInBackground();
 				return true;

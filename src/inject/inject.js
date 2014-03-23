@@ -107,17 +107,27 @@ $(function() {
 				dataType: 'json',
 				success: function(data, d) {
 					var itemHTML = data.inner ? data.inner.items_html : undefined,
-						items = itemHTML ? itemHTML.match(/data-item-id="([0-9]{18})/g) : [],
+						items = [], //itemHTML ? itemHTML.match(/data-item-id="([0-9]{18})/g) : [],
 						numNewItems = 0,
 						totalItems = [],
-						i;
+						i,
+						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text">([\s\S]*?)<\/p>/g,
+						parsedItem;
 
-					// TODO: make the regexp more accurate.
-					items = $.map(items, function(item, j) {
-						item = item.replace('data-item-id="', '');
-						return ((j % 2) === 0) ? item : undefined;	
-					});
-					items.pop();
+					do {
+						parsedItem = parseRegexp.exec(itemHTML);
+						if (parsedItem && parsedItem.length === 6) {
+							items.push({
+								id: parsedItem[1],
+								user: {
+									id: parsedItem[4],
+									username: parsedItem[2],
+									name: parsedItem[3]
+								},
+								text: $('<div>'+parsedItem[5]+'</div>').text()
+							});
+						}
+					} while (parsedItem);
 
 					numNewItems = items.length;
 					queries[currentQueryIndex].items = queries[currentQueryIndex].items.concat(items);
@@ -154,6 +164,22 @@ $(function() {
 				}
 			});
 		};
+		twitter.getNewFollowers = function(cb) {
+			$.ajax({
+				url: 'https://twitter.com/i/notifications',
+				type: 'GET',
+				dataType: 'html',
+				success: function(resp) {
+					var parsedResponse = resp ? $($.parseHTML(resp)) : undefined,
+						followerElems = parsedResponse ? parsedResponse.find('.stream-item-follow li.supplement a'): undefined,
+						followerIds = followerElems ? _.map(followerElems, function(followerElem) {
+							return $(followerElem).attr('data-user-id');	
+						}) : [];
+
+					if (cb) cb(followerIds);
+				}
+			});
+		};
 
 		favoriteTweetIter = function(options) {
 			var progressCounter = (1 + options.bucketIndex) + options.itemIndex * options.tweetBuckets.length,
@@ -161,7 +187,7 @@ $(function() {
 				statusString = progressCounter + '/' + options.numTweets;
 
 			setTimeout(function() {
-				var tweetId = options.tweetBuckets[options.bucketIndex].items[options.itemIndex],
+				var tweet = options.tweetBuckets[options.bucketIndex].items[options.itemIndex],
 					$statusNum = options.templates[options.bucketIndex].find('td.statusNum');	
 
 				options.templates[options.bucketIndex].find('span.status span').css({
@@ -173,11 +199,12 @@ $(function() {
 
 				chrome.runtime.sendMessage({
 					'message': 'setFavorited',
-					data: {
-						id: tweetId
-					}
+					data: _.extend(tweet, {
+						query: options.tweetBuckets[options.bucketIndex].query,
+						timeFavorited: (new Date()).getTime()
+					})
 				});
-				twitter.favoriteTweet(tweetId);
+				twitter.favoriteTweet(tweet.id);
 
 				// Last tweet send, close the window
 				if (progressCounter >= options.numTweets) {
@@ -196,69 +223,82 @@ $(function() {
 			return numTweets;
 		};
 
-		// Figure out which search query to use
-		chrome.runtime.sendMessage({
-			message: 'getSearchQueries'
-		}, function(searchQueries) {
-			var i,
-				itemTemplate,
-				templates = [];
+		twitter.getNewFollowers(function(followers) {
 
-			// format queries
-			for (i = 0; i < searchQueries.length; i++) {
-				searchQueries[i] = {
-					query: searchQueries[i],
-					items: []
-				};
-			}
+			$description.html('<img src="'+chrome.extension.getURL('/img/loader.gif')+'"> Calculating followers...');
 
-			// Show search queries
-			itemTemplate = _.template('<tr><td class="query"><%- query %></td><td><span class="status"><span></span></span></td><td class="statusNum">0/0</td></tr>');
-			_.each(searchQueries, function(searchQuery, queryIndex) {
-				var itemElement = itemTemplate(searchQuery);
-				templates[queryIndex] = $(itemElement);
-				$buckets.append(templates[queryIndex]);
-			});
+			chrome.runtime.sendMessage({
+				'message': 'setFollowersAndConversions',
+				data: followers
+			}, function(resp) {
 
-			twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
-				// If no tweets are returned from twitter, however unlikely,
-				// exit.
-				if (getNumTweets(unfilteredTweetBuckets) < 1) window.close();
+				$description.html('<img src="'+chrome.extension.getURL('/img/loader.gif')+'"> Finding new tweets...');
 
-				// Filter through results to make sure favorites not
-				// already called.
+				// Figure out which search query to use
 				chrome.runtime.sendMessage({
-					message: 'getNewTweets',
-					data: {
-						tweetBuckets: unfilteredTweetBuckets
+					message: 'getSearchQueries'
+				}, function(searchQueries) {
+					var i,
+						itemTemplate,
+						templates = [];
+
+					// format queries
+					for (i = 0; i < searchQueries.length; i++) {
+						searchQueries[i] = {
+							query: searchQueries[i],
+							items: []
+						};
 					}
-				}, function(tweetBuckets) {
-					var a,
-						i,
-						numTweets = getNumTweets(tweetBuckets),
-						randTweetMarker = [],
-						$statusNum;
 
-					if (!tweetBuckets.length || numTweets < 1) window.close();
+					// Show search queries
+					itemTemplate = _.template('<tr><td class="query"><%- query %></td><td><span class="status"><span></span></span></td><td class="statusNum">0/0</td></tr>');
+					_.each(searchQueries, function(searchQuery, queryIndex) {
+						var itemElement = itemTemplate(searchQuery);
+						templates[queryIndex] = $(itemElement);
+						$buckets.append(templates[queryIndex]);
+					});
 
-					$description.html('Favoriting some tweets!');
+					twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
+						// If no tweets are returned from twitter, however unlikely,
+						// exit.
+						if (getNumTweets(unfilteredTweetBuckets) < 1) window.close();
 
-					// Slowly favorite tweets over time and with randomness.
-					for (a = 0; a < tweetBuckets.length; a++) {
+						// Filter through results to make sure favorites not
+						// already called.
+						chrome.runtime.sendMessage({
+							message: 'getNewTweets',
+							data: {
+								tweetBuckets: unfilteredTweetBuckets
+							}
+						}, function(tweetBuckets) {
+							var a,
+								i,
+								numTweets = getNumTweets(tweetBuckets),
+								randTweetMarker = [],
+								$statusNum;
 
-						templates[a].find('td.statusNum').html('0/'+tweetBuckets[a].items.length);
-						templates[a].addClass('show');
+							if (!tweetBuckets.length || numTweets < 1) window.close();
 
-						for (i = 0; i < tweetBuckets[a].items.length; i++) {
-							favoriteTweetIter({
-								bucketIndex: a,
-								itemIndex: i,
-								tweetBuckets: tweetBuckets,
-								numTweets: numTweets,
-								templates: templates
-							});	
-						}
-					}
+							$description.html('Favoriting some tweets!');
+
+							// Slowly favorite tweets over time and with randomness.
+							for (a = 0; a < tweetBuckets.length; a++) {
+
+								templates[a].find('td.statusNum').html('0/'+tweetBuckets[a].items.length);
+								templates[a].addClass('show');
+
+								for (i = 0; i < tweetBuckets[a].items.length; i++) {
+									favoriteTweetIter({
+										bucketIndex: a,
+										itemIndex: i,
+										tweetBuckets: tweetBuckets,
+										numTweets: numTweets,
+										templates: templates
+									});	
+								}
+							}
+						});
+					});
 				});
 			});
 		});
