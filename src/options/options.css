@@ -42,10 +42,10 @@ p {
 }
 
 .history-page ul.tweet-list li.empty {
-	height: 196px;
+	height: 150px;
 	background: #fdfdfd;
 	text-align: center;
-	padding: 115px 50px;
+	padding: 138px 50px;
 	font-size: 18px;
 	width: 340px;
 }
