@@ -316,6 +316,9 @@ backend.setMaxQueries = function(data, cb) {
 };
 
 backend.setOptions = function(data, cb) {
+	chrome.storage.local.set({
+		blacklist: data.blacklisted || []
+	});
 	backend.setSearchQueries(data.queries, function() {
 		cb(true);
 	});	
@@ -325,6 +328,14 @@ backend.setOptions = function(data, cb) {
 
 backend.setLoggedInStatus = function(data, cb) {
 	loggedIn = data;
+
+	return true;
+};
+
+backend.getBlacklist = function(cb) {
+	chrome.storage.local.get('blacklist', function(data) {
+		cb(data.blacklist || []);
+	});
 
 	return true;
 };
@@ -393,6 +404,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.getMaxQueries(sendResponse);
 			case 'getLoggedInStatus':
 				return backend.getLoggedInStatus(sendResponse);
+			case 'getBlacklist':
+				return backend.getBlacklist(sendResponse);
 			case 'getActionsAndReset':
 				return backend.getActionsAndReset(sendResponse);
 			case 'getTweetHistory':

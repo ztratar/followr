@@ -23,6 +23,7 @@ $(function() {
 		favoriteTweetIter,
 		getNumTweets,
 		runFollowr,
+		blacklist = [],
 		twitter = {};
 
 	// Get MaxQueries -- not too worried about the race condition
@@ -30,6 +31,12 @@ $(function() {
 		message: 'getMaxQueries'
 	}, function(mQ) {
 		maxQueries = mQ;
+	});
+
+	chrome.runtime.sendMessage({
+		message: 'getBlacklist'
+	}, function(data) {
+		blacklist = data || [];
 	});
 
 	chrome.runtime.sendMessage({
@@ -126,22 +133,32 @@ $(function() {
 						numNewItems = 0,
 						totalItems = [],
 						i,
+						inBlacklist = false,
 						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text">([\s\S]*?)<\/p>/g,
 						parsedItem;
 
 					do {
+						inBlacklist = false;
 						parsedItem = parseRegexp.exec(itemHTML);
-						if (parsedItem && parsedItem.length === 6) {
-							items.push({
-								id: parsedItem[1],
-								converted: false,
-								user: {
-									id: parsedItem[4],
-									username: parsedItem[2],
-									name: parsedItem[3]
-								},
-								text: $('<div>'+parsedItem[5]+'</div>').text()
-							});
+						if (parsedItem &&
+								parsedItem.length === 6) {
+							for (var blacklistItem in blacklist) {
+								if (parsedItem[5].indexOf(blacklist[blacklistItem]) !== -1) {
+									inBlacklist = true;
+								}	
+							}
+							if (!inBlacklist) {
+								items.push({
+									id: parsedItem[1],
+									converted: false,
+									user: {
+										id: parsedItem[4],
+										username: parsedItem[2],
+										name: parsedItem[3]
+									},
+									text: $('<div>'+parsedItem[5]+'</div>').text()
+								});
+							}
 						}
 					} while (parsedItem);
 

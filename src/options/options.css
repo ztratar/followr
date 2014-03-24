@@ -204,6 +204,10 @@ div.row textarea, div.row input {
 	font-size: 18px;
 }
 
+div.row input[name="blacklist"] {
+	margin-top: 8px;
+}
+
 div.row textarea:focus, div.row input:focus {
 	outline: none;
 	border: 2px solid rgb(170, 170, 241);

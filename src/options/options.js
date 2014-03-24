@@ -14,6 +14,7 @@ $(function() {
 $(function() {
 	var $followrForm = $("#followr-options"),
 		$queries = $followrForm.find('textarea[name="queries"]'),
+		$blacklisted = $followrForm.find('input[name="blacklist"]'),
 		$navSetupBtn = $('.options-nav a.setup'),
 		$navHistoryBtn = $('.options-nav a.history'),
 		$setupPage = $('.setup-page'),
@@ -26,6 +27,14 @@ $(function() {
 	}, function(data) {
 		if (data && data.length) {
 			$queries.val(data.join(', '));	
+		}
+	});
+
+	chrome.runtime.sendMessage({
+		message: 'getBlacklist'	
+	}, function(data) {
+		if (data && data.length) {
+			$blacklisted.val(data.join(', '));	
 		}
 	});
 
@@ -69,6 +78,7 @@ $(function() {
 		e.preventDefault();
 
 		var queries = $queries.val(),
+			blacklisted = $blacklisted.val().split(/\s|, |,/),
 			parsedQueries = [],
 			i;
 
@@ -88,7 +98,8 @@ $(function() {
 		chrome.runtime.sendMessage({
 			message: 'setOptions',
 			data: {
-				queries: parsedQueries
+				queries: parsedQueries,
+				blacklisted: blacklisted
 			}
 		}, function(data) {
 			$('.saved').addClass('show');
