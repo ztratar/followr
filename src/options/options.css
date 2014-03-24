@@ -8,7 +8,7 @@ body, html {
 	font-size: 18px;
 	background: #fff;
 	min-width: 440px;
-	height: 380px;
+	height: 426px;
 }
 
 .container {
@@ -37,12 +37,12 @@ p {
 .history-page ul.tweet-list {
 	margin: 0;
 	padding: 0;
-	height: 380px;
+	height: 427px;
 	overflow: scroll;
 }
 
 .history-page ul.tweet-list li.empty {
-	height: 150px;
+	height: 196px;
 	background: #fdfdfd;
 	text-align: center;
 	padding: 115px 50px;
@@ -172,7 +172,7 @@ ul.options-nav li a.active {
 
 div.row {
 	display: block;
-	padding: 28px 0 22px;
+	padding: 8px 0 22px;
 }
 
 div.save-row {
@@ -186,7 +186,14 @@ div.row label {
 	font-weight: 500;
 	font-size: 16px;
 	color: #666;
-	margin: 0 0 8px 0;
+	margin: 20px 0 8px 0;
+}
+
+div.row label small {
+	font-weight: 400;
+	color: #bbb;
+	font-size: 16px;
+	margin: 0 0 0 5px;
 }
 
 div.row textarea {
