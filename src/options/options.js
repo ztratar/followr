@@ -78,11 +78,13 @@ $(function() {
 		e.preventDefault();
 
 		var queries = $queries.val(),
-			blacklisted = $blacklisted.val().split(/\s|, |,/),
+			blacklistStr = $blacklisted.val(),
+			blacklisted = blacklistStr.length > 0 ? blacklistStr.split(/\s|, |,/) : [],
 			parsedQueries = [],
 			i;
 
 		queries = queries.split(',');
+
 		for (i = 0; i < queries.length; i++) {
 			trimmed = $.trim(queries[i]);
 			trimmed = trimmed.replace('"', '');
