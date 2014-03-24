@@ -1,5 +1,20 @@
 /// Followr Inject.js
 
+window.followrSendUserInfo = function() {
+	document.title = 'Followr - Finding Avatar';
+	$(function() {
+		chrome.runtime.sendMessage({
+			message: 'setUserInfo',
+			data: {
+				img: $(".account-summary img.avatar").first().attr('src'),
+				name: $('b.fullname').html(),
+				username: $('span.screen-name').html().slice(1)
+			}
+		});
+		window.close();
+	});
+};
+
 $(function() {
 	var maxQueries = 12, // default queries
 		timeInbetweenTweets = 1500,
@@ -97,7 +112,7 @@ $(function() {
 
 			options = options || {};
 
-			url = 'https://twitter.com/i/search/timeline?q=' + encodeURIComponent(query.query) + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0';
+			url = 'https://twitter.com/i/search/timeline?q=' + encodeURIComponent('"' + query.query + '"') + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0';
 			if (options && options.lastTweetId && options.firstTweetId) {
 				url += '&scroll_cursor=TWEET-'+options.lastTweetId+'-'+options.firstTweetId;
 			}
@@ -119,6 +134,7 @@ $(function() {
 						if (parsedItem && parsedItem.length === 6) {
 							items.push({
 								id: parsedItem[1],
+								converted: false,
 								user: {
 									id: parsedItem[4],
 									username: parsedItem[2],

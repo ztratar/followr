@@ -6,10 +6,10 @@
 	</head>
 	<body>
 		<ul class="options-nav">
-			<li><a href="#" class="active">Setup</a></li>
-			<li><a href="#">History</a></li>
+			<li><a href="#" class="active setup">Setup</a></li>
+			<li><a href="#" class="history">History</a></li>
 		</ul>
-		<div class="container">
+		<div class="container setup-page">
 			<form id="followr-options" action="/">
 				<div class="row">
 					<label>Topics to favorite</label>
@@ -21,14 +21,24 @@
 				</div>
 			</form>
 			<div class="options-banner cf">
+				<div class="user-info">
+					<img src="">
+					<h4>Welcome, </h4>
+					<span><strong>0</strong> followers gained</span>
+				</div>
 				<span class="pull-right">
 					Like Followr? <a
 						href="https://chrome.google.com/webstore/detail/followr/phbifpkhlenmpjndnmjppbdhcocdlalk/reviews" target="_blank">Leave a review!</a>
 				</span>
 			</div>
 		</div>
+		<div class="container history-page">
+			<ul class="tweet-list"></ul>
+		</div>
 		<div class="saved"><span>Saved!</span></div>
 		<script type="text/javascript" src="/src/inject/jquery.js"></script>
+		<script type="text/javascript" src="/src/inject/underscore.js"></script>
+		<script type="text/javascript" src="/src/inject/moment.js"></script>
 		<script type="text/javascript" src="/src/options/options.js"></script>
 	</body>
 </html>

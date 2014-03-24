@@ -8,12 +8,12 @@ body, html {
 	font-size: 18px;
 	background: #fff;
 	min-width: 440px;
-	height: 400px;
+	height: 380px;
 }
 
 .container {
 	display: block;
-	margin: 0 auto;
+	margin: 46px auto 0;
 	max-width: 400px;
 	padding: 1px 0 0px;
 }
@@ -27,11 +27,115 @@ p {
 	color: #888;
 }
 
+.history-page {
+	display: none;
+	max-width: 440px;
+	padding: 0;
+	font-size: 13px;
+}
+
+.history-page ul.tweet-list {
+	margin: 0;
+	padding: 0;
+	height: 380px;
+	overflow: scroll;
+}
+
+.history-page ul.tweet-list li.empty {
+	height: 150px;
+	background: #fdfdfd;
+	text-align: center;
+	padding: 115px 50px;
+	font-size: 18px;
+	width: 340px;
+}
+
+.history-page ul.tweet-list li.empty span {
+	font-size: 14px;
+	color: #bbb;
+}
+
+.history-page ul.tweet-list li {
+	display: block;
+	width: 440px;
+	overflow: hidden;
+}
+
+.history-page ul.tweet-list li a {
+	display: block;
+	border-top: 1px solid transparent;
+	border-bottom: 1px solid #eee;
+	padding: 20px 30px 20px 75px;
+	background: #fdfdfd;
+	text-decoration: none;
+	position: relative;
+	-webkit-transition: all 0.18s ease-out;
+}
+
+.history-page ul.tweet-list li a:hover {
+	background: #fefefe;
+}
+
+.history-page ul.tweet-list li a:hover p {
+	color: #777;
+}
+
+.history-page ul.tweet-list li a img {
+	width: 32px;
+	height: 32px;
+	border-radius: 3px;
+	position: absolute;
+	top: 20px;
+	left: 30px;
+}
+
+.history-page ul.tweet-list li a h4 {
+	margin: 0;
+	color: rgb(37, 90, 184);
+}
+
+.history-page ul.tweet-list li a p {
+	margin: 8px 0 4px 0;
+}
+
+.history-page ul.tweet-list li a span {
+	color: #C2C2C2;
+	text-transform: uppercase;
+	font-size: 12px;
+	margin: 11px 0 0;
+	display: block;
+}
+
+.history-page ul.tweet-list li a span span {
+	text-transform: none;
+	display: inline;
+	margin-left: 10px;
+}
+
+.history-page ul.tweet-list li a span.converted {
+	display: block;
+	background: #3498db;
+	border-radius: 3px;
+	color: white;
+	position: absolute;
+	right: 30px;
+	bottom: 17px;
+	padding: 3px 5px;
+	font-family: 'Lato-Bold';
+	font-size: 12px;
+}
+
 ul.options-nav {
 	display: block;
 	margin: 0;
 	padding: 0;
-	height: 56px;
+	height: 46px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 400;
+	background: white;
 }
 
 ul.options-nav li {
@@ -52,10 +156,14 @@ ul.options-nav li a {
 	text-align: center;
 	text-transform: uppercase;
 	text-decoration: none;
-	color: #777;
+	color: #ADADAD;
 	font-family: 'Lato-Bold';
 	font-size: 14px;
 	outline: none;
+}
+
+ul.options-nav li a:hover {
+	color: #999;
 }
 
 ul.options-nav li a.active {
@@ -64,7 +172,7 @@ ul.options-nav li a.active {
 
 div.row {
 	display: block;
-	padding: 22px 0;
+	padding: 28px 0 22px;
 }
 
 div.save-row {
@@ -162,11 +270,11 @@ div.row input[type="submit"]:hover {
 }
 
 .options-banner {
-	margin: 33px -20px 0;
+	margin: 27px -20px 0;
 	padding: 10px 22px 8px;	
 	font-size: 14px;
-	min-height: 20px;
-	background: #E7E8F0;
+	min-height: 56px;
+	background: #F5F6FA;
 }
 
 .options-banner span {
@@ -175,6 +283,36 @@ div.row input[type="submit"]:hover {
 
 .options-banner a {
 	outline: 0;
+}
+
+.options-banner .user-info {
+	float: left;
+	padding: 0 0 0 42px;
+	font-size: 12px;
+}
+
+.options-banner .user-info img {
+	position: absolute;
+	border-radius: 100px;
+	width: 32px;
+	height: 32px;
+	bottom: 21px;
+	left: 20px;
+}
+
+.options-banner .user-info h4 {
+	margin: 12px 0 2px 0;
+}
+
+.options-banner .user-info span {
+	opacity: .6;
+}
+
+.options-banner .pull-right {
+	margin-top: 12px;
+	width: 100px;
+	text-align: right;
+	font-size: 12px;
 }
 
 .pull-left {

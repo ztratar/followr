@@ -50,6 +50,30 @@ backend.launchTwitterInBackground = function() {
 	});
 };
 
+backend.findAndSetUsersInfo = function() {
+	chrome.tabs.create({
+		url: 'http://twitter.com/',
+		active: false
+	}, function(tab) {
+		chrome.tabs.executeScript(tab.id, {
+			code: 'window.followrSendUserInfo()'
+		});
+	});
+};
+
+backend.setUserInfo = function(data) {
+	data = _.extend({
+		img: '',
+		name: '',
+		username: ''
+	}, data);
+	chrome.storage.local.set({
+		user: data
+	});
+
+	return true;
+};
+
 backend.runningStatus = function() {
 	tabOnlineCheck = true;
 
@@ -62,6 +86,17 @@ backend.incrementRunCount = function(cb) {
 			runCount: (typeof data.runCount === 'number') ? (data.runCount + 1) : 0
 		}, cb);
 	});
+};
+
+backend.getUserInfo = function(cb) {
+	chrome.storage.local.get('user', function(data) {
+		var userData = data;
+		chrome.storage.local.get('numFollowersGained', function(data) {
+			cb(_.extend(userData, data));
+		});
+	});
+
+	return true;
 };
 
 // Backend task to get time last run
@@ -78,6 +113,25 @@ backend.getTimeLeftBeforeRun = function(cb) {
 			millisecondsDiff = currentTime - lastRunTime,
 			minutesDiff = Math.floor(millsecondsDiff / (1000 * 60));
 		cb(minutesDiff);
+	});
+
+	return true;
+};
+
+backend.getTweetHistory = function(cb) {
+	var returnTweets = [];
+	chrome.storage.local.get(undefined, function(data) {
+		for (var dataKey in data) {
+			if (dataKey.indexOf('tweet-') !== -1) {
+				returnTweets.push(data[dataKey]);
+			}
+		}
+
+		returnTweets = _.sortBy(returnTweets, function(tweet) {
+			return -1 * (tweet.timeFavorited ? tweet.timeFavorited : 1000);
+		}); 
+
+		cb(returnTweets);
 	});
 
 	return true;
@@ -190,7 +244,7 @@ backend.setFollowersAndConversions = function(followers, cb) {
 
 				// Find last tweet favorited by user, get query used
 				for (var dataKey in data) {
-					if (dataKey.indexOf('twitter-') !== -1 &&
+					if (dataKey.indexOf('tweet-') !== -1 &&
 						data[dataKey].query &&
 						data[dataKey].user &&
 						data[dataKey].user.id === follower) {
@@ -201,7 +255,11 @@ backend.setFollowersAndConversions = function(followers, cb) {
 									storageObj[searchQueryKey] = data[searchQueryKey];
 								}
 								storageObj[searchQueryKey].numConversions++;
+								storageObj.numFollowersGained = (typeof data.numFollowersGained === 'number') ? data.numFollowersGained+1 : 1;
 							}
+
+							storageObj[dataKey] = data[dataKey];
+							storageObj[dataKey].converted = true;
 							break;
 					}
 				}
@@ -323,6 +381,8 @@ backend.setTweetWithAction = function(data, cb) {
 chrome.runtime.onMessage.addListener(
 	function(data, sender, sendResponse) {
 		switch(data.message) {	
+			case 'getUserInfo':
+				return backend.getUserInfo(sendResponse);
 			case 'getTimeLeftBeforeRun':
 				return backend.getTimeLeftBeforeRun(sendResponse);
 			case 'getSearchQueries':
@@ -335,6 +395,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.getLoggedInStatus(sendResponse);
 			case 'getActionsAndReset':
 				return backend.getActionsAndReset(sendResponse);
+			case 'getTweetHistory':
+				return backend.getTweetHistory(sendResponse);
 			case 'setFavorited':
 				return backend.setFavorited(data.data, sendResponse);
 			case 'setSearchQueries':
@@ -349,6 +411,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.setTweetWithAction(data.data, sendResponse);
 			case 'setFollowersAndConversions':
 				return backend.setFollowersAndConversions(data.data, sendResponse);
+			case 'setUserInfo':
+				return backend.setUserInfo(data.data);
 			case 'forceRun':
 				backend.launchTwitterInBackground();
 				return true;
@@ -366,6 +430,8 @@ chrome.storage.local.get(undefined, function(data) {
 	var optionsUrl;
 
 	if (data.hasSetup !== true) {
+		backend.findAndSetUsersInfo();
+
 		optionsUrl = chrome.extension.getURL('src/tutorial/tutorial.html');
 		chrome.tabs.query({ url: optionsUrl }, function(tabs) {
 			if (tabs.length) {

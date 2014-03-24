@@ -1,6 +1,24 @@
+// Fill in the user avatar
+$(function() {
+	chrome.runtime.sendMessage({
+		message: 'getUserInfo'
+	}, function(data) {
+		$('.user-info img').attr('src', data.user.img);
+		$('.user-info h4').html('Welcome, @' + data.user.username);
+		if (data.numFollowersGained) {
+			$('.user-info span strong').html(data.numFollowersGained);
+		}
+	});
+});
+
 $(function() {
 	var $followrForm = $("#followr-options"),
 		$queries = $followrForm.find('textarea[name="queries"]'),
+		$navSetupBtn = $('.options-nav a.setup'),
+		$navHistoryBtn = $('.options-nav a.history'),
+		$setupPage = $('.setup-page'),
+		$historyPage = $('.history-page'),
+		$historyTweetList = $('.history-page ul.tweet-list'),
 		$saveButton = $followrForm.find('input[type="submit"]');
 
 	chrome.runtime.sendMessage({
@@ -9,6 +27,42 @@ $(function() {
 		if (data && data.length) {
 			$queries.val(data.join(', '));	
 		}
+	});
+
+	function refreshHistory() {
+		var tweetTemplate = _.template('<li><a href="http://twitter.com/<%- user.username %>/status/<%- id %>" target="_blank"><img src="http://avatars.io/twitter/<%- user.username %>"><h4><strong><%- user.name %></strong><%- user.username %></h4><p><%- text %></p><span><%- query.replace("_", " ") %><span><%- timeFavorited %></span></span><% if (converted) { %><span class="converted">converted!</span><% } %></a></li>');
+
+		$historyTweetList.html('');
+		
+		chrome.runtime.sendMessage({
+			'message': 'getTweetHistory'
+		}, function(tweets) {
+			if (tweets.length) {
+				_.each(tweets, function(tweet, tweetIndex) {
+					var tweetHtml = tweetTemplate(_.extend({ converted: false }, tweet, {
+						timeFavorited: moment(tweet.timeFavorited).fromNow()	
+					}));
+					$historyTweetList.append(tweetHtml);
+				});
+			} else {
+				$historyTweetList.append('<li class="empty"><h2>Followr hasn\'t favorited anything yet!</h2><span>Click setup, fill in some search terms, and click start.<span></li>');
+			}
+		});
+	}
+
+	$navSetupBtn.on('click', function() {
+		$navSetupBtn.addClass('active');
+		$navHistoryBtn.removeClass('active');
+		$setupPage.show();
+		$historyPage.hide();
+	});
+
+	$navHistoryBtn.on('click', function() {
+		$navSetupBtn.removeClass('active');
+		$navHistoryBtn.addClass('active');
+		$setupPage.hide();
+		$historyPage.show();
+		refreshHistory();
 	});
 
 	$followrForm.submit(function(e) {
@@ -21,6 +75,7 @@ $(function() {
 		queries = queries.split(',');
 		for (i = 0; i < queries.length; i++) {
 			trimmed = $.trim(queries[i]);
+			trimmed = trimmed.replace('"', '');
 			if (trimmed !== '') {
 				parsedQueries.push(trimmed);
 			}
