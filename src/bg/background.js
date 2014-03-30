@@ -51,13 +51,28 @@ backend.launchTwitterInBackground = function() {
 };
 
 backend.findAndSetUsersInfo = function() {
-	chrome.tabs.create({
-		url: 'http://twitter.com/',
-		active: false
-	}, function(tab) {
-		chrome.tabs.executeScript(tab.id, {
-			code: 'window.followrSendUserInfo()'
+	if (!data.user || !data.user.username || data.user.username.length < 1) {
+		chrome.tabs.create({
+			url: 'http://twitter.com/',
+			active: false
+		}, function(tab) {
+			chrome.tabs.executeScript(tab.id, {
+				code: 'window.followrSendUserInfo()'
+			});
 		});
+	}
+};
+
+backend.removeOldTweetData = function() {
+	var removeKeys = [];
+
+	chrome.storage.local.get(undefined, function(data) {
+		for (var dataKey in data) {
+			if (data[dataKey] && dataKey.indexOf('tweet-') !== -1) {
+				removeKeys.push(dataKey);
+			}
+		}
+		chrome.storage.local.remove(removeKeys);
 	});
 };
 
@@ -442,8 +457,10 @@ chrome.runtime.onMessage.addListener(
 chrome.storage.local.get(undefined, function(data) {
 	var optionsUrl;
 
-	if (data.hasSetup !== true) {
-		backend.findAndSetUsersInfo();
+	backend.findAndSetUsersInfo();	
+
+	if (data.hasSetup !== 'v1') {
+		backend.removeOldTweetData();
 
 		optionsUrl = chrome.extension.getURL('src/tutorial/tutorial.html');
 		chrome.tabs.query({ url: optionsUrl }, function(tabs) {
@@ -458,7 +475,7 @@ chrome.storage.local.get(undefined, function(data) {
 	}
 
 	chrome.storage.local.set({
-		hasSetup: true
+		hasSetup: 'v1'
 	});
 });
 

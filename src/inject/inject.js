@@ -113,6 +113,8 @@ $(function() {
 			window.close();
 		}
 
+		window.followrSendUserInfo();
+
 		twitter.getTweets = function(currentQueryIndex, queries, cb, options) {
 			var url,
 				query = queries[currentQueryIndex];
