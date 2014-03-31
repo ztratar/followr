@@ -1,6 +1,7 @@
 /// Followr Inject.js
 
-window.followrSendUserInfo = function() {
+window.followrSendUserInfo = function(options) {
+	options = options || {};
 	document.title = 'Followr - Finding Avatar';
 	$(function() {
 		chrome.runtime.sendMessage({
@@ -11,7 +12,9 @@ window.followrSendUserInfo = function() {
 				username: $('span.screen-name').html().slice(1)
 			}
 		});
-		window.close();
+		if (options && options.closeWindow) {
+			window.close();
+		}
 	});
 };
 

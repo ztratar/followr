@@ -50,14 +50,14 @@ backend.launchTwitterInBackground = function() {
 	});
 };
 
-backend.findAndSetUsersInfo = function() {
-	if (!data.user || !data.user.username || data.user.username.length < 1) {
+backend.findAndSetUsersInfo = function(data) {
+	if (!data || !data.user || !data.user.username || data.user.username.length < 1) {
 		chrome.tabs.create({
 			url: 'http://twitter.com/',
 			active: false
 		}, function(tab) {
 			chrome.tabs.executeScript(tab.id, {
-				code: 'window.followrSendUserInfo()'
+				code: 'window.followrSendUserInfo({ closeWindow: true })'
 			});
 		});
 	}
@@ -457,11 +457,10 @@ chrome.runtime.onMessage.addListener(
 chrome.storage.local.get(undefined, function(data) {
 	var optionsUrl;
 
-	backend.findAndSetUsersInfo();	
+	backend.findAndSetUsersInfo(data);
 
-	if (data.hasSetup !== 'v1') {
+	if (!data || data.hasSetup !== 'v1') {
 		backend.removeOldTweetData();
-
 		optionsUrl = chrome.extension.getURL('src/tutorial/tutorial.html');
 		chrome.tabs.query({ url: optionsUrl }, function(tabs) {
 			if (tabs.length) {
