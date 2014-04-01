@@ -280,6 +280,8 @@ $(function() {
 						itemTemplate,
 						templates = [];
 
+					searchQueries = _.take(_.shuffle(searchQueries), 4);
+
 					// format queries
 					for (i = 0; i < searchQueries.length; i++) {
 						searchQueries[i] = {
