@@ -39,7 +39,7 @@ $(function() {
 	});
 
 	function refreshHistory() {
-		var tweetTemplate = _.template('<li><a href="http://twitter.com/<%- user.username %>/status/<%- id %>" target="_blank"><img src="http://avatars.io/twitter/<%- user.username %>"><h4><strong><%- user.name %></strong><%- user.username %></h4><p><%- text %></p><span><%- query.replace("_", " ") %><span><%- timeFavorited %></span></span><% if (converted) { %><span class="converted">converted!</span><% } %></a></li>');
+		var tweetTemplate = _.template('<li><a href="http://twitter.com/<%- user.username %>/status/<%- id %>" target="_blank"><img src="http://avatars.io/twitter/<%- user.username %>"><h4><strong><%- user.name %></strong> &mdash; @<%- user.username %></h4><p><%- text %></p><span><%- query.replace("_", " ") %><span><%- timeFavorited %></span></span><% if (converted) { %><span class="converted">converted!</span><% } %></a></li>');
 
 		$historyTweetList.html('');
 		
