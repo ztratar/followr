@@ -20,7 +20,7 @@ window.followrSendUserInfo = function(options) {
 
 $(function() {
 	var maxQueries = 12, // default queries
-		maxTopicsPerIteration = 4,
+		maxTopicsPerIteration = 5,
 		timeInbetweenTweets = 1500,
 		bindScoreToRealUserAction,
 		addToScore,
