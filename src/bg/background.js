@@ -14,20 +14,7 @@ backend.launchTwitterInBackground = function() {
 		return;
 	}
 
-	// Only run if queries exist
-	backend.getSearchQueries(function(searchQueries) {
-		var tabId;
-
-		if (!searchQueries || !searchQueries.length) {
-			return;
-		}
-		// Store run time in milliseconds
-		chrome.storage.local.set({
-			'lastRun': (new Date()).getTime()
-		});
-		backend.incrementRunCount();
-
-		tabOnlineCheck = false;
+	var createTabFunc = function() {
 		chrome.tabs.create({
 			url: 'http://twitter.com/',
 			active: false
@@ -47,6 +34,31 @@ backend.launchTwitterInBackground = function() {
 				chrome.tabs.remove(tabId);
 			}	
 		}, 15000);
+	};
+
+	// Only run if queries exist
+	backend.getSearchQueries(function(searchQueries) {
+		var tabId;
+
+		if (!searchQueries || !searchQueries.length) {
+			return;
+		}
+		// Store run time in milliseconds
+		chrome.storage.local.set({
+			'lastRun': (new Date()).getTime()
+		});
+		backend.incrementRunCount();
+
+		tabOnlineCheck = false;
+		chrome.windows.getCurrent({}, function(currentWindow) {
+			if (!currentWindow) {
+				chrome.windows.create({}, function() {
+					createTabFunc();
+				});
+			} else {
+				createTabFunc();
+			}
+		});
 	});
 };
 
