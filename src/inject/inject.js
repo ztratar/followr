@@ -26,6 +26,7 @@ $(function() {
 		addToScore,
 		favoriteTweetIter,
 		getNumTweets,
+		unfavoriteOldTweets,
 		runFollowr,
 		blacklist = [],
 		twitter = {};
@@ -203,6 +204,17 @@ $(function() {
 				}
 			});
 		};
+		twitter.unfavoriteTweet = function(id) {
+			$.ajax({
+				url: 'https://twitter.com/i/tweet/unfavorite',
+				dataType: 'json',
+				type: 'POST',
+				data: {
+					'authenticity_token': twitter.authenticity_token,
+					'id': id
+				}
+			});
+		};
 		twitter.getNewFollowers = function(cb) {
 			$.ajax({
 				url: 'https://twitter.com/i/notifications',
@@ -261,6 +273,25 @@ $(function() {
 			}
 			return numTweets;
 		};
+
+		unfavoriteOldTweets = function() {
+			chrome.runtime.sendMessage({
+				'message': 'getAndClearOldTweets'
+			}, function(tweets) {
+				var i,
+					unfavTweetHelper = function(id, iter) {
+						_.delay(function() {
+							twitter.unfavoriteTweet(id);
+						}, iter * 1000);
+					};
+
+				for (i = 0; i < tweets.length; i++) {
+					unfavTweetHelper(tweets[i].id, i);
+				}
+			});
+		};
+
+		unfavoriteOldTweets();
 
 		twitter.getNewFollowers(function(followers) {
 

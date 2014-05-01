@@ -164,6 +164,35 @@ backend.getTweetHistory = function(cb) {
 	return true;
 };
 
+backend.getAndClearOldTweets = function(cb) {
+	var tweets = [],
+		tweetKeys = [];
+
+	chrome.storage.local.get(undefined, function(data) {
+		for (var dataKey in data) {
+			if (dataKey.indexOf('tweet-') !== -1) {
+				tweets.push(data[dataKey]);
+			}
+		}
+
+		tweets = _.filter(tweets, function(tweet) {
+			// Only unfavorate and remove tweets that are 5 days old or longer
+			return (tweet.timeFavorited < (new Date()).getTime() - 1000 * 60 * 60 * 24 * 5);
+		});
+
+		if (tweets.length) {
+			tweetKeys = _.map(_.pluck(tweets, 'id'), function(tweetId) {
+				return 'tweet-' + tweetId;
+			});
+			chrome.storage.local.remove(tweetKeys);
+		}
+
+		cb(tweets);
+	});
+
+	return true;
+};
+
 backend.getNewTweets = function(data, cb) {
 	var i = 0,
 		returnTweetBuckets = [],
@@ -437,6 +466,8 @@ chrome.runtime.onMessage.addListener(
 				return backend.getActionsAndReset(sendResponse);
 			case 'getTweetHistory':
 				return backend.getTweetHistory(sendResponse);
+			case 'getAndClearOldTweets':
+				return backend.getAndClearOldTweets(sendResponse);
 			case 'setFavorited':
 				return backend.setFavorited(data.data, sendResponse);
 			case 'setSearchQueries':
