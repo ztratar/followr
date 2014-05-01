@@ -196,6 +196,7 @@ backend.getAndClearOldTweets = function(cb) {
 backend.getNewTweets = function(data, cb) {
 	var i = 0,
 		returnTweetBuckets = [],
+		currentUser = {},
 		trimBuckets = function(tweetBuckets) {
 			backend.getMaxQueries(function(maxQueries) {
 				backend.getActionsAndReset(function(numActions) {
@@ -234,7 +235,8 @@ backend.getNewTweets = function(data, cb) {
 					var tweet = data.tweetBuckets[queryIndex].items[tweetIter];
 
 					chrome.storage.local.get('tweet-' + tweet.id, function(tweetInDb) {
-						if (Object.keys(tweetInDb).length === 0) {
+						if (Object.keys(tweetInDb).length === 0
+								&& data.tweetBuckets[queryIndex].items[tweetIter].user.username !== currentUser.username) {
 							returnTweetBuckets[queryIndex].items.push(data.tweetBuckets[queryIndex].items[tweetIter]);
 						}
 
@@ -258,6 +260,9 @@ backend.getNewTweets = function(data, cb) {
 	if (!data.tweetBuckets || !data.tweetBuckets.length) {
 		cb([]);
 	}
+	backend.getUserInfo(function(cUser) {
+		currentUser = cUser.user;
+	});
 	getNewTweetRecur(0,0);
 
 	return true;
