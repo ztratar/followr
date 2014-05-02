@@ -1,5 +1,18 @@
 // Followr Background.js
 
+
+// -----------------------
+// Google analytics
+// -----------------------
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://ssl.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-48998506-2', 'ztratar.github.io');
+ga('send', 'pageview', '/background');
+
+
 // -----------------------
 // Backend Logic
 // -----------------------
@@ -15,6 +28,7 @@ backend.launchTwitterInBackground = function() {
 	}
 
 	var createTabFunc = function() {
+		ga('send', 'event', 'backend', 'run', 'success');
 		chrome.tabs.create({
 			url: 'http://twitter.com/',
 			active: false
@@ -41,6 +55,7 @@ backend.launchTwitterInBackground = function() {
 		var tabId;
 
 		if (!searchQueries || !searchQueries.length) {
+			ga('send', 'event', 'backend', 'run', 'failed', 'no search queries');
 			return;
 		}
 		// Store run time in milliseconds
@@ -185,6 +200,7 @@ backend.getAndClearOldTweets = function(cb) {
 				return 'tweet-' + tweetId;
 			});
 			chrome.storage.local.remove(tweetKeys);
+			ga('send', 'event', 'backend', 'clear', 'tweets', tweetKeys.length);
 		}
 
 		cb(tweets);
@@ -223,6 +239,7 @@ backend.getNewTweets = function(data, cb) {
 						tweetBuckets[tbIndex].items = tweetBucket.items.slice(0, maxIndices[tbIndex]);
 					});
 					
+					ga('send', 'event', 'backend', 'favorite', 'tweets', tweetBuckets.length);
 					cb(tweetBuckets);
 				});
 			});
@@ -258,6 +275,7 @@ backend.getNewTweets = function(data, cb) {
 	}
 
 	if (!data.tweetBuckets || !data.tweetBuckets.length) {
+		ga('send', 'event', 'backend', 'favorite', 'tweets', 0);
 		cb([]);
 	}
 	backend.getUserInfo(function(cUser) {
@@ -321,6 +339,7 @@ backend.setFollowersAndConversions = function(followers, cb) {
 
 							storageObj[dataKey] = data[dataKey];
 							storageObj[dataKey].converted = true;
+							ga('send', 'event', 'backend', 'follower gained');
 							break;
 					}
 				}
@@ -356,6 +375,7 @@ backend.setFavorited = function(tweetData, cb) {
 };
 
 backend.setSearchQueries = function(queries, cb) {
+	ga('send', 'event', 'backend', 'set', 'queries', queries.join(', '));
 	queries = queries || [];
 	// TODO: Put an interface to this function
 	chrome.storage.local.set({
