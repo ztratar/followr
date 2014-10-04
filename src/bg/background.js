@@ -33,7 +33,7 @@ backend.launchTwitterInBackground = function() {
 			url: 'http://twitter.com/',
 			active: false
 		}, function(tab) {
-			tabId = tab.id;	
+			tabId = tab.id;
 		});
 
 		setTimeout(function() {
@@ -46,7 +46,7 @@ backend.launchTwitterInBackground = function() {
 		setTimeout(function() {
 			if (!tabOnlineCheck) {
 				chrome.tabs.remove(tabId);
-			}	
+			}
 		}, 15000);
 	};
 
@@ -144,7 +144,7 @@ backend.getUserInfo = function(cb) {
 // Backend task to get time last run
 backend.getLastRunTime = function(cb) {
 	chrome.storage.local.get('lastRun', function(data) {
-		cb(data.lastRun);	
+		cb(data.lastRun);
 	});
 };
 
@@ -171,7 +171,7 @@ backend.getTweetHistory = function(cb) {
 
 		returnTweets = _.sortBy(returnTweets, function(tweet) {
 			return -1 * (tweet.timeFavorited ? tweet.timeFavorited : 1000);
-		}); 
+		});
 
 		cb(returnTweets);
 	});
@@ -238,7 +238,7 @@ backend.getNewTweets = function(data, cb) {
 					_.each(tweetBuckets, function(tweetBucket, tbIndex) {
 						tweetBuckets[tbIndex].items = tweetBucket.items.slice(0, maxIndices[tbIndex]);
 					});
-					
+
 					ga('send', 'event', 'backend', 'favorite', 'tweets', tweetBuckets.length);
 					cb(tweetBuckets);
 				});
@@ -258,9 +258,9 @@ backend.getNewTweets = function(data, cb) {
 						}
 
 						if (tweetIter >= data.tweetBuckets[queryIndex].items.length-1) {
-							getNewTweetRecur(0, queryIndex+1);	
+							getNewTweetRecur(0, queryIndex+1);
 						} else {
-							getNewTweetRecur(tweetIter + 1, queryIndex);	
+							getNewTweetRecur(tweetIter + 1, queryIndex);
 						}
 					});
 				})();
@@ -360,7 +360,7 @@ backend.setFavorited = function(tweetData, cb) {
 	chrome.storage.local.get(searchQueryKey, function(data) {
 		if (data[searchQueryKey]) {
 			storageObj[searchQueryKey] = data[searchQueryKey];
-			storageObj[searchQueryKey].numFavorited++;	
+			storageObj[searchQueryKey].numFavorited++;
 		} else {
 			storageObj[searchQueryKey] = {
 				numFavorited: 1,
@@ -402,7 +402,7 @@ backend.setOptions = function(data, cb) {
 	});
 	backend.setSearchQueries(data.queries, function() {
 		cb(true);
-	});	
+	});
 
 	return true;
 };
@@ -427,7 +427,7 @@ backend.getActionsAndReset = function(cb) {
 		chrome.storage.local.set({
 			'numActions': 0
 		});
-		cb(data.numActions);	
+		cb(data.numActions);
 	});
 
 	return true;
@@ -447,7 +447,7 @@ backend.isTweetActedOn = function(data, cb) {
 
 backend.setTweetWithAction = function(data, cb) {
 	var storageObj = {};
-	
+
 	backend.isTweetActedOn(data, function(isTweetActedOn) {
 		if (isTweetActedOn) return false;
 		storageObj['tweetAction-'+data.id] = true;
@@ -472,7 +472,7 @@ backend.setTweetWithAction = function(data, cb) {
 // Capture calls from the injection script
 chrome.runtime.onMessage.addListener(
 	function(data, sender, sendResponse) {
-		switch(data.message) {	
+		switch(data.message) {
 			case 'getUserInfo':
 				return backend.getUserInfo(sendResponse);
 			case 'getTimeLeftBeforeRun':
