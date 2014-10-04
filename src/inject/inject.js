@@ -141,7 +141,7 @@ $(function() {
 						totalItems = [],
 						i,
 						inBlacklist = false,
-						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text">([\s\S]*?)<\/p>/g,
+						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text"[^>]*>([\s\S]*?)<\/p>/g,
 						parsedItem;
 
 					do {

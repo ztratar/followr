@@ -251,18 +251,20 @@ backend.getNewTweets = function(data, cb) {
 				(function() {
 					var tweet = data.tweetBuckets[queryIndex].items[tweetIter];
 
-					chrome.storage.local.get('tweet-' + tweet.id, function(tweetInDb) {
-						if (Object.keys(tweetInDb).length === 0
-								&& data.tweetBuckets[queryIndex].items[tweetIter].user.username !== currentUser.username) {
-							returnTweetBuckets[queryIndex].items.push(data.tweetBuckets[queryIndex].items[tweetIter]);
-						}
+					if (tweet) {
+						chrome.storage.local.get('tweet-' + tweet.id, function(tweetInDb) {
+							if (Object.keys(tweetInDb).length === 0
+									&& data.tweetBuckets[queryIndex].items[tweetIter].user.username !== currentUser.username) {
+								returnTweetBuckets[queryIndex].items.push(data.tweetBuckets[queryIndex].items[tweetIter]);
+							}
 
-						if (tweetIter >= data.tweetBuckets[queryIndex].items.length-1) {
-							getNewTweetRecur(0, queryIndex+1);
-						} else {
-							getNewTweetRecur(tweetIter + 1, queryIndex);
-						}
-					});
+							if (tweetIter >= data.tweetBuckets[queryIndex].items.length-1) {
+								getNewTweetRecur(0, queryIndex+1);
+							} else {
+								getNewTweetRecur(tweetIter + 1, queryIndex);
+							}
+						});
+					}
 				})();
 			}
 		};
