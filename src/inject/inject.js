@@ -141,7 +141,7 @@ $(function() {
 						totalItems = [],
 						i,
 						inBlacklist = false,
-						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text">([\s\S]*?)<\/p>/g,
+						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text"[^>]*>([\s\S]*?)<\/p>/g,
 						parsedItem;
 
 					do {
@@ -152,7 +152,7 @@ $(function() {
 							for (var blacklistItem in blacklist) {
 								if (parsedItem[5].indexOf(blacklist[blacklistItem]) !== -1) {
 									inBlacklist = true;
-								}	
+								}
 							}
 							if (!inBlacklist) {
 								items.push({
@@ -224,7 +224,7 @@ $(function() {
 					var parsedResponse = resp ? $($.parseHTML(resp)) : undefined,
 						followerElems = parsedResponse ? parsedResponse.find('.stream-item-follow li.supplement a'): undefined,
 						followerIds = followerElems ? _.map(followerElems, function(followerElem) {
-							return $(followerElem).attr('data-user-id');	
+							return $(followerElem).attr('data-user-id');
 						}) : [];
 
 					if (cb) cb(followerIds);
@@ -239,7 +239,7 @@ $(function() {
 
 			setTimeout(function() {
 				var tweet = options.tweetBuckets[options.bucketIndex].items[options.itemIndex],
-					$statusNum = options.templates[options.bucketIndex].find('td.statusNum');	
+					$statusNum = options.templates[options.bucketIndex].find('td.statusNum');
 
 				options.templates[options.bucketIndex].find('span.status span').css({
 					width: Math.floor(200 * ((options.itemIndex+1)/options.tweetBuckets[options.bucketIndex].items.length))
@@ -366,7 +366,7 @@ $(function() {
 										tweetBuckets: tweetBuckets,
 										numTweets: numTweets,
 										templates: templates
-									});	
+									});
 								}
 							}
 						});
