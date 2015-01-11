@@ -7,9 +7,9 @@ window.followrSendUserInfo = function(options) {
 		chrome.runtime.sendMessage({
 			message: 'setUserInfo',
 			data: {
-				img: $(".account-summary img.avatar").first().attr('src'),
-				name: $('b.fullname').html(),
-				username: $('span.screen-name').html().slice(1)
+				img: $("img.DashboardProfileCard-avatarImage").first().attr('src'),
+				name: $('.DashboardProfileCard-name a').html(),
+				username: $('.DashboardProfileCard-screenname span.u-linkComplex-target').html()
 			}
 		});
 		if (options && options.closeWindow) {
@@ -17,6 +17,11 @@ window.followrSendUserInfo = function(options) {
 		}
 	});
 };
+
+setTimeout(function() {
+	// If after a minute passes the window hasn't closed, close it
+	window.close();
+}, 1000 * 60);
 
 $(function() {
 	var maxQueries = 12, // default queries
@@ -150,7 +155,9 @@ $(function() {
 						if (parsedItem &&
 								parsedItem.length === 6) {
 							for (var blacklistItem in blacklist) {
-								if (parsedItem[5].indexOf(blacklist[blacklistItem]) !== -1) {
+								if (parsedItem[5].indexOf(blacklist[blacklistItem]) !== -1
+										|| parsedItem[2].indexOf(blacklist[blacklistItem] !== -1
+										|| parsedItem[3].indexOf(blacklist[blacklistItem] !== -1) {
 									inBlacklist = true;
 								}
 							}

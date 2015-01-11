@@ -3,10 +3,18 @@ $(function() {
 	chrome.runtime.sendMessage({
 		message: 'getUserInfo'
 	}, function(data) {
-		$('.user-info img').attr('src', data.user.img);
-		$('.user-info h4').html('Welcome, @' + data.user.username);
-		if (data.numFollowersGained) {
-			$('.user-info span strong').html(data.numFollowersGained);
+		if (data && data.user && data.user.username) {
+			$('.user-info img').attr('src', data.user.img);
+			$('.user-info h4').html('Welcome, @' + data.user.username);
+			if (data.numFollowersGained) {
+				$('.user-info span strong').html(data.numFollowersGained);
+			}
+		} else {
+			$('.user-info img').hide();
+			$('.user-info')
+				.html('Start your first campaign!')
+				.css('padding', '18px 0 0 0');
+			$('.user-info span').hide();
 		}
 	});
 });
@@ -42,7 +50,7 @@ $(function() {
 		var tweetTemplate = _.template('<li><a href="http://twitter.com/<%- user.username %>/status/<%- id %>" target="_blank"><img src="http://avatars.io/twitter/<%- user.username %>"><h4><strong><%- user.name %></strong> &mdash; @<%- user.username %></h4><p><%- text %></p><span><%- query.replace("_", " ") %><span><%- timeFavorited %></span></span><% if (converted) { %><span class="converted">converted!</span><% } %></a></li>');
 
 		$historyTweetList.html('');
-		
+
 		chrome.runtime.sendMessage({
 			'message': 'getTweetHistory'
 		}, function(tweets) {
