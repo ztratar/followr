@@ -156,8 +156,8 @@ $(function() {
 								parsedItem.length === 6) {
 							for (var blacklistItem in blacklist) {
 								if (parsedItem[5].indexOf(blacklist[blacklistItem]) !== -1
-										|| parsedItem[2].indexOf(blacklist[blacklistItem] !== -1
-										|| parsedItem[3].indexOf(blacklist[blacklistItem] !== -1) {
+										|| parsedItem[2].indexOf(blacklist[blacklistItem]) !== -1
+										|| parsedItem[3].indexOf(blacklist[blacklistItem]) !== -1) {
 									inBlacklist = true;
 								}
 							}
