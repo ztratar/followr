@@ -18,11 +18,6 @@ window.followrSendUserInfo = function(options) {
 	});
 };
 
-setTimeout(function() {
-	// If after a minute passes the window hasn't closed, close it
-	window.close();
-}, 1000 * 60);
-
 $(function() {
 	var maxQueries = 12, // default queries
 		maxTopicsPerIteration = 5,
@@ -97,6 +92,11 @@ $(function() {
 	bindScoreToRealUserAction();
 
 	runFollowr = window.runFollowr = function() {
+		setTimeout(function() {
+			// If after a minute passes the window hasn't closed, close it
+			window.close();
+		}, 1000 * 60);
+
 		chrome.runtime.sendMessage({
 			'message': 'runningStatus'
 		});
