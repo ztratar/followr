@@ -264,6 +264,8 @@ backend.getNewTweets = function(data, cb) {
 								getNewTweetRecur(tweetIter + 1, queryIndex);
 							}
 						});
+					} else {
+						getNewTweetRecur(0, queryIndex+1);
 					}
 				})();
 			}

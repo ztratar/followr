@@ -131,7 +131,12 @@ $(function() {
 
 			options = options || {};
 
-			url = 'https://twitter.com/i/search/timeline?q=' + encodeURIComponent('"' + query.query + '"') + '&src=typd&include_available_features=1&include_entities=1&last_note_ts=0';
+			var q = query.query;
+			if (q.split(' ').length > 1) {
+				q = '"' + q + '"';
+			}
+
+			url = 'https://twitter.com/i/search/timeline?f=realtime&q=' + encodeURIComponent(q) + '&src=typd';
 			if (options && options.lastTweetId && options.firstTweetId) {
 				url += '&scroll_cursor=TWEET-'+options.lastTweetId+'-'+options.firstTweetId;
 			}
@@ -146,7 +151,7 @@ $(function() {
 						totalItems = [],
 						i,
 						inBlacklist = false,
-						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="js-tweet-text tweet-text"[^>]*>([\s\S]*?)<\/p>/g,
+						parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="TweetTextSize  js-tweet-text tweet-text"[^>]*>([\s\S]*?)<\/p>/g,
 						parsedItem;
 
 					do {
@@ -177,14 +182,15 @@ $(function() {
 					} while (parsedItem);
 
 					numNewItems = items.length;
+
 					queries[currentQueryIndex].items = queries[currentQueryIndex].items.concat(items);
 					items = queries[currentQueryIndex].items;
 
 					if (items.length <= 50 && numNewItems > 10) {
 						// get more items for same query
 						twitter.getTweets(currentQueryIndex, queries, cb, {
-							firstTweetId: items[0],
-							lastTweetId: items[items.length-1]
+							firstTweetId: items[0].id,
+							lastTweetId: items[items.length-1].id
 						});
 					} else {
 						if (currentQueryIndex < queries.length-1) {
