@@ -10,10 +10,10 @@
     "128": "icons/icon128.png"
   },
   "background": {
-	"pages": [
+    "pages": [
       "src/bg/background.html",
       "src/tutorial/tutorial.html"
-	],
+    ],
     "scripts": [
       "src/inject/underscore.js",
       "src/bg/background.js"
@@ -26,24 +26,24 @@
     "default_popup": "options.html"
   },
   "permissions": [
-	"storage",
-	"unlimitedStorage",
+    "storage",
+    "unlimitedStorage",
     "http://twitter.com/*",
     "https://twitter.com/*"
   ],
   "web_accessible_resources": [
-	"img/loader.gif",
+    "img/loader.gif",
     "src/inject/jquery.min.map",
-	"src/inject/underscore-min.map"
+    "src/inject/underscore-min.map"
   ],
   "content_scripts": [
     {
       "matches": [
-		"http://twitter.com/*",
-		"https://twitter.com/*"
+        "http://twitter.com/*",
+        "https://twitter.com/*"
       ],
       "css": [
-		"css/general.css",
+        "css/general.css",
         "css/style.css"
       ],
       "js": [
@@ -54,5 +54,5 @@
     }
   ],
   "options_page": "options.html",
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'sha256-sMIlYRYpOS+W2ouHuIw3q88cRhWUcsHNFBTKciMVrgg=' https://www.google-analytics.com; object-src 'self'"
 }
