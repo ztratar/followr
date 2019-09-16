@@ -28,6 +28,9 @@
   "permissions": [
     "storage",
     "unlimitedStorage",
+    "webRequest",
+    "*://*.twitter.com/",
+    "*://*.twimg.com/",
     "http://twitter.com/*",
     "https://twitter.com/*"
   ],
@@ -48,11 +51,10 @@
       ],
       "js": [
         "src/inject/jquery.js",
-        "src/inject/underscore.js",
-        "src/inject/inject.js"
+        "src/inject/underscore.js"
       ]
     }
   ],
   "options_page": "options.html",
-  "content_security_policy": "script-src 'self' 'sha256-sMIlYRYpOS+W2ouHuIw3q88cRhWUcsHNFBTKciMVrgg=' https://www.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'sha256-XYPqAfB7kzAYUliejadQiN2sX/h9psqJDoA3Y8oQL3M=' https://www.google-analytics.com; object-src 'self'"
 }

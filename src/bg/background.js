@@ -7,11 +7,38 @@
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://ssl.google-analytics.com/analytics.js','ga');
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
 ga('create', 'UA-48998506-2', 'ztratar.github.io');
 ga('send', 'pageview', '/background');
 
+// -----------------------
+// Authentication token scraper
+// -----------------------
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  function(details) {
+    for (var i = 0; i < details.requestHeaders.length; ++i) {
+      if (details.requestHeaders[i].name === 'authorization') {
+        chrome.storage.local.set({
+          authorization: details.requestHeaders[i].value
+        });
+      } else if (details.requestHeaders[i].name === 'x-csrf-token') {
+        chrome.storage.local.set({
+          "x-csrf-token": details.requestHeaders[i].value
+        });
+      }
+    }
+    return {
+      requestHeaders: details.requestHeaders
+    };
+  },
+  {
+    urls: [
+      '*://api.twitter.com/1.1/jot/client_event.json'
+    ]
+  },
+  ["requestHeaders"]
+);
 
 // -----------------------
 // Backend Logic
@@ -21,24 +48,36 @@ var backend = {},
   loggedIn = true,
   tabOnlineCheck = false;
 
+backend.getAuthHeaders = function(cb) {
+  chrome.storage.local.get(['authorization', 'x-csrf-token'], function(data) {
+    cb(data);
+  });
+  return true;
+};
+
 // Launch Twitter function
 backend.launchTwitterInBackground = function() {
+  console.log('attempting to launch twitter');
   if (!loggedIn) {
     return;
   }
 
   var createTabFunc = function() {
+    console.log('creating tab func');
+
     ga('send', 'event', 'backend', 'run', 'success');
     chrome.tabs.create({
       url: 'http://twitter.com/',
       active: false
     }, function(tab) {
+      console.log('new tab made', tab);
       tabId = tab.id;
     });
 
     setTimeout(function() {
+      console.log('running follower', tabId);
       chrome.tabs.executeScript(tabId, {
-        code: 'window.runFollowr()'
+        file: 'src/inject/inject.js'
       });
     }, 5000);
 
@@ -55,6 +94,7 @@ backend.launchTwitterInBackground = function() {
     var tabId;
 
     if (!searchQueries || !searchQueries.length) {
+      console.log('no search queries');
       ga('send', 'event', 'backend', 'run', 'failed', 'no search queries');
       return;
     }
@@ -64,8 +104,12 @@ backend.launchTwitterInBackground = function() {
     });
     backend.incrementRunCount();
 
+    console.log('getting current window');
+
     tabOnlineCheck = false;
     chrome.windows.getCurrent({}, function(currentWindow) {
+      console.log('got current window', currentWindow);
+
       if (!currentWindow) {
         chrome.windows.create({}, function() {
           createTabFunc();
@@ -291,7 +335,9 @@ backend.getNewTweets = function(data, cb) {
 };
 
 backend.getSearchQueries = function(cb) {
+  console.log('getting search queries');
   chrome.storage.local.get('searchQueries', function(data) {
+    console.log('getting search queries -> data', data);
     cb(data.searchQueries);
   });
 
@@ -477,6 +523,8 @@ backend.setTweetWithAction = function(data, cb) {
 chrome.runtime.onMessage.addListener(
   function(data, sender, sendResponse) {
     switch(data.message) {
+      case 'getAuthHeaders':
+        return backend.getAuthHeaders(sendResponse);
       case 'getUserInfo':
         return backend.getUserInfo(sendResponse);
       case 'getTimeLeftBeforeRun':

@@ -1,5 +1,7 @@
 /// Followr Inject.js
 
+console.log('injected');
+
 window.followrSendUserInfo = function(options) {
   options = options || {};
   document.title = 'Followr - Finding Avatar';
@@ -13,7 +15,8 @@ window.followrSendUserInfo = function(options) {
       }
     });
     if (options && options.closeWindow) {
-      window.close();
+      console.log('would have closed rom options');
+      //window.close();
     }
   });
 };
@@ -91,10 +94,12 @@ $(function() {
   };
   bindScoreToRealUserAction();
 
-  runFollowr = window.runFollowr = function() {
+  runFollowr = function(data = {}) {
+    console.log('running follower with data', data);
+
     setTimeout(function() {
       // If after a minute passes the window hasn't closed, close it
-      window.close();
+      //window.close();
     }, 1000 * 60);
 
     chrome.runtime.sendMessage({
@@ -102,9 +107,10 @@ $(function() {
     });
 
     // Set Up Twitter API Calls
-    twitter.authenticity_token = $('input[name="authenticity_token"]').val();
+    twitter.authorization = data.authorization;
+    twitter.xcsrfToken = data['x-csrf-token'];
 
-    if (twitter.authenticity_token && $('body').hasClass('logged-in')) {
+    if (twitter.authorization && $('a[href="/compose/tweet"]').length > 0) {
       // Set up the status interface
       var $followr = $('<div class="followr"></div>'),
         $followrWrap = $('<div class="followr-wrap"></div>'),
@@ -120,7 +126,9 @@ $(function() {
 
       document.title = 'Followr - Running...';
     } else {
-      window.close();
+      //window.close();
+      console.log('no auth token found');
+      return;
     }
 
     window.followrSendUserInfo();
@@ -136,61 +144,78 @@ $(function() {
         q = '"' + q + '"';
       }
 
-      url = 'https://twitter.com/i/search/timeline?f=realtime&q=' + encodeURIComponent(q) + '&src=typd';
-      if (options && options.lastTweetId && options.firstTweetId) {
-        url += '&scroll_cursor=TWEET-'+options.lastTweetId+'-'+options.firstTweetId;
+      url = 'https://api.twitter.com/2/search/adaptive.json?include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_composer_source=true&include_ext_alt_text=true&include_reply_count=1&tweet_mode=extended&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&send_error_codes=true&q=' + encodeURIComponent(q) + '&count=20&query_source=typed_query&pc=1&spelling_corrections=1&ext=mediaStats%2ChighlightedLabel%2CcameraMoment&tweet_search_mode=live';
+
+      if (options && options.lastTweet) {
+        lastTweetDate = new Date(options.lastTweet.created_at);
+        year = lastTweetDate.getFullYear();
+        month = lastTweetDate.getMonth();
+        day = lastTweetDate.getDate();
+        url += '&until=' + year + '-' + month + '-' + day;
       }
+
+      console.log('searching tweets');
 
       $.ajax({
         url: url,
         dataType: 'json',
+        headers: {
+          authorization: twitter.authorization,
+          "x-csrf-token": twitter.xcsrfToken
+        },
         success: function(data, d) {
-          var itemHTML = data.inner ? data.inner.items_html : undefined,
-            items = [], //itemHTML ? itemHTML.match(/data-item-id="([0-9]{18})/g) : [],
-            numNewItems = 0,
-            totalItems = [],
-            i,
-            inBlacklist = false,
-            parseRegexp = /data-tweet-id="([0-9]{18})"[\s\S]*?data-screen-name="([a-zA-Z0-9]+)"[\s\S]*?data-name="([a-zA-Z0-9\s]+)"[\s\S]*?data-user-id="([0-9]+)"[\s\S]*?<p class="TweetTextSize  js-tweet-text tweet-text"[^>]*>([\s\S]*?)<\/p>/g,
-            parsedItem;
+          console.log('search data', data, d);
 
-          do {
-            inBlacklist = false;
-            parsedItem = parseRegexp.exec(itemHTML);
-            if (parsedItem &&
-                parsedItem.length === 6) {
-              for (var blacklistItem in blacklist) {
-                if (parsedItem[5].indexOf(blacklist[blacklistItem]) !== -1
-                    || parsedItem[2].indexOf(blacklist[blacklistItem]) !== -1
-                    || parsedItem[3].indexOf(blacklist[blacklistItem]) !== -1) {
-                  inBlacklist = true;
-                }
-              }
-              if (!inBlacklist) {
-                items.push({
-                  id: parsedItem[1],
-                  converted: false,
-                  user: {
-                    id: parsedItem[4],
-                    username: parsedItem[2],
-                    name: parsedItem[3]
-                  },
-                  text: $('<div>'+parsedItem[5]+'</div>').text()
-                });
+          if (!data || !data.globalObjects || !data.globalObjects.tweets) {
+            //window.close();
+            return;
+          }
+
+          const newTweets = data.globalObjects.tweets;
+          const newUsers = data.globalObjects.users;
+          let items = [];
+
+          for (let id in newTweets) {
+            let item = newTweets[id];
+            let user = _.findWhere(newUsers, { id: item.user_id });
+            let inBlacklist = false;
+
+            if (!user) {
+              console.log('no user found for tweet ' + id);
+              return;
+            }
+
+            for (var blacklistItem in blacklist) {
+              if (item.full_text.indexOf(blacklist[blacklistItem]) !== -1
+                  || user.screen_name.indexOf(blacklist[blacklistItem]) !== -1
+                  || user.name.indexOf(blacklist[blacklistItem]) !== -1) {
+                inBlacklist = true;
               }
             }
-          } while (parsedItem);
 
-          numNewItems = items.length;
+            if (!inBlacklist) {
+              items.push({
+                id: id,
+                converted: false,
+                user: {
+                  id: item.user_id,
+                  screen_name: user.screen_name,
+                  name: user.name
+                },
+                created_at: item.created_at,
+                text: item.full_text
+              });
+            }
+          }
 
+          numNewItems = newTweets.length;
           queries[currentQueryIndex].items = queries[currentQueryIndex].items.concat(items);
           items = queries[currentQueryIndex].items;
 
           if (items.length <= 50 && numNewItems > 10) {
             // get more items for same query
             twitter.getTweets(currentQueryIndex, queries, cb, {
-              firstTweetId: items[0].id,
-              lastTweetId: items[items.length-1].id
+              lastTweet: items[items.length-1]
             });
           } else {
             if (currentQueryIndex < queries.length-1) {
@@ -205,12 +230,16 @@ $(function() {
     };
     twitter.favoriteTweet = function(id, cb) {
       $.ajax({
-        url: 'https://twitter.com/i/tweet/favorite',
+        url: 'https://api.twitter.com/1.1/favorites/create.json',
         dataType: 'json',
         type: 'POST',
+        headers: {
+          authorization: twitter.authorization,
+          "x-csrf-token": twitter.xcsrfToken
+        },
         data: {
-          'authenticity_token': twitter.authenticity_token,
-          'id': id
+          'id': id,
+          tweet_mode: 'extended'
         },
         success: function(data) {
           if (cb) cb(data);
@@ -219,11 +248,14 @@ $(function() {
     };
     twitter.unfavoriteTweet = function(id) {
       $.ajax({
-        url: 'https://twitter.com/i/tweet/unfavorite',
+        url: 'https://api.twitter.com/1.1/favorites/destroy.json',
         dataType: 'json',
         type: 'POST',
+        headers: {
+          authorization: twitter.authorization,
+          "x-csrf-token": twitter.xcsrfToken
+        },
         data: {
-          'authenticity_token': twitter.authenticity_token,
           'id': id
         }
       });
@@ -346,7 +378,9 @@ $(function() {
           twitter.getTweets(0, searchQueries, function(unfilteredTweetBuckets) {
             // If no tweets are returned from twitter, however unlikely,
             // exit.
-            if (getNumTweets(unfilteredTweetBuckets) < 1) window.close();
+            if (getNumTweets(unfilteredTweetBuckets) < 1) {
+              window.close();
+            }
 
             // Filter through results to make sure favorites not
             // already called.
@@ -362,7 +396,10 @@ $(function() {
                 randTweetMarker = [],
                 $statusNum;
 
-              if (!tweetBuckets.length || numTweets < 1) window.close();
+              if (!tweetBuckets.length || numTweets < 1) {
+                console.log('would have closed: tweet buckets or numTweets < 1');
+                //window.close();
+              }
 
               $description.html('Favoriting some tweets!');
 
@@ -388,4 +425,11 @@ $(function() {
       });
     });
   };
+
+  chrome.runtime.sendMessage({
+    message: 'getAuthHeaders'
+  }, function(data) {
+    console.log('got auth headers', data);
+    runFollowr(data);
+  });
 });
