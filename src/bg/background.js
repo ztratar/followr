@@ -590,5 +590,5 @@ chrome.storage.local.get(undefined, function(data) {
 // Favorite query every 30 minutes with
 // randomness.
 setInterval(function() {
-  setTimeout(backend.launchTwitterInBackground, (1000 * 60 * 15 * Math.random()));
+  setTimeout(backend.launchTwitterInBackground, 1000 * 8 * Math.random());
 }, (1000 * 60 * 30));

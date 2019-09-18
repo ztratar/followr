@@ -65,7 +65,7 @@ $(function() {
   chrome.runtime.sendMessage({
     message: 'getLoggedInStatus'
   }, function(backendThinksLoggedIn) {
-    if ($('body').hasClass('logged-in')) {
+    if ($('.StaticLoggedOutHomePage').length == 0) {
       chrome.runtime.sendMessage({
         message: 'setLoggedInStatus',
         data: true
