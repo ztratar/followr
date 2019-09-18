@@ -1,23 +1,38 @@
 /// Followr Inject.js
 
-console.log('injected');
-
 window.followrSendUserInfo = function(options) {
   options = options || {};
   document.title = 'Followr - Finding Avatar';
   $(function() {
-    chrome.runtime.sendMessage({
-      message: 'setUserInfo',
-      data: {
-        img: $("img.DashboardProfileCard-avatarImage").first().attr('src'),
-        name: $('.DashboardProfileCard-name a').html(),
-        username: $('.DashboardProfileCard-screenname span.u-linkComplex-target').html()
+    const html = $('body').html();
+    const matchRegex = /"entities":{"users":{"entities":{"(\d+)"/
+    const matches = matchRegex.exec(html);
+    const userId = matches ? matches[1] : null;
+
+    if (!userId) return;
+
+    $.ajax({
+      url: 'https://api.twitter.com/1.1/users/show.json?user_id=' + userId,
+      dataType: 'json',
+      headers: {
+        authorization: options.twitter.authorization,
+        "x-csrf-token": options.twitter.xcsrfToken
+      },
+      success: function(data) {
+        chrome.runtime.sendMessage({
+          message: 'setUserInfo',
+          data: {
+            id: userId,
+            img: data.profile_image_url_https,
+            name: data.name,
+            username: data.screen_name
+          }
+        });
+        if (options && options.closeWindow) {
+          window.close();
+        }
       }
     });
-    if (options && options.closeWindow) {
-      console.log('would have closed rom options');
-      //window.close();
-    }
   });
 };
 
@@ -95,11 +110,9 @@ $(function() {
   bindScoreToRealUserAction();
 
   runFollowr = function(data = {}) {
-    console.log('running follower with data', data);
-
     setTimeout(function() {
       // If after a minute passes the window hasn't closed, close it
-      //window.close();
+      window.close();
     }, 1000 * 60);
 
     chrome.runtime.sendMessage({
@@ -126,12 +139,11 @@ $(function() {
 
       document.title = 'Followr - Running...';
     } else {
-      //window.close();
-      console.log('no auth token found');
+      window.close();
       return;
     }
 
-    window.followrSendUserInfo();
+    window.followrSendUserInfo({ twitter: twitter });
 
     twitter.getTweets = function(currentQueryIndex, queries, cb, options) {
       var url,
@@ -154,8 +166,6 @@ $(function() {
         url += '&until=' + year + '-' + month + '-' + day;
       }
 
-      console.log('searching tweets');
-
       $.ajax({
         url: url,
         dataType: 'json',
@@ -164,10 +174,8 @@ $(function() {
           "x-csrf-token": twitter.xcsrfToken
         },
         success: function(data, d) {
-          console.log('search data', data, d);
-
           if (!data || !data.globalObjects || !data.globalObjects.tweets) {
-            //window.close();
+            window.close();
             return;
           }
 
@@ -181,7 +189,6 @@ $(function() {
             let inBlacklist = false;
 
             if (!user) {
-              console.log('no user found for tweet ' + id);
               return;
             }
 
@@ -262,17 +269,16 @@ $(function() {
     };
     twitter.getNewFollowers = function(cb) {
       $.ajax({
-        url: 'https://twitter.com/i/notifications',
+        url: 'https://api.twitter.com/1.1/followers/list.json?user_id=36782854&count=50',
+        dataType: 'json',
         type: 'GET',
-        dataType: 'html',
+        headers: {
+          authorization: twitter.authorization,
+          "x-csrf-token": twitter.xcsrfToken
+        },
         success: function(resp) {
-          var parsedResponse = resp ? $($.parseHTML(resp)) : undefined,
-            followerElems = parsedResponse ? parsedResponse.find('.stream-item-follow li.supplement a'): undefined,
-            followerIds = followerElems ? _.map(followerElems, function(followerElem) {
-              return $(followerElem).attr('data-user-id');
-            }) : [];
-
-          if (cb) cb(followerIds);
+          const ids = (resp && resp.users) ? resp.users.map((r) => r.id) : [];
+          if (cb) cb(ids);
         }
       });
     };
@@ -339,7 +345,6 @@ $(function() {
     unfavoriteOldTweets();
 
     twitter.getNewFollowers(function(followers) {
-
       $description.html('<img src="'+chrome.extension.getURL('/img/loader.gif')+'"> Calculating followers...');
 
       chrome.runtime.sendMessage({
@@ -397,8 +402,7 @@ $(function() {
                 $statusNum;
 
               if (!tweetBuckets.length || numTweets < 1) {
-                console.log('would have closed: tweet buckets or numTweets < 1');
-                //window.close();
+                window.close();
               }
 
               $description.html('Favoriting some tweets!');
@@ -429,7 +433,6 @@ $(function() {
   chrome.runtime.sendMessage({
     message: 'getAuthHeaders'
   }, function(data) {
-    console.log('got auth headers', data);
     runFollowr(data);
   });
 });

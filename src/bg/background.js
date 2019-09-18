@@ -57,25 +57,20 @@ backend.getAuthHeaders = function(cb) {
 
 // Launch Twitter function
 backend.launchTwitterInBackground = function() {
-  console.log('attempting to launch twitter');
   if (!loggedIn) {
     return;
   }
 
   var createTabFunc = function() {
-    console.log('creating tab func');
-
     ga('send', 'event', 'backend', 'run', 'success');
     chrome.tabs.create({
       url: 'http://twitter.com/',
       active: false
     }, function(tab) {
-      console.log('new tab made', tab);
       tabId = tab.id;
     });
 
     setTimeout(function() {
-      console.log('running follower', tabId);
       chrome.tabs.executeScript(tabId, {
         file: 'src/inject/inject.js'
       });
@@ -94,7 +89,6 @@ backend.launchTwitterInBackground = function() {
     var tabId;
 
     if (!searchQueries || !searchQueries.length) {
-      console.log('no search queries');
       ga('send', 'event', 'backend', 'run', 'failed', 'no search queries');
       return;
     }
@@ -104,12 +98,8 @@ backend.launchTwitterInBackground = function() {
     });
     backend.incrementRunCount();
 
-    console.log('getting current window');
-
     tabOnlineCheck = false;
     chrome.windows.getCurrent({}, function(currentWindow) {
-      console.log('got current window', currentWindow);
-
       if (!currentWindow) {
         chrome.windows.create({}, function() {
           createTabFunc();
@@ -149,6 +139,7 @@ backend.removeOldTweetData = function() {
 
 backend.setUserInfo = function(data) {
   data = _.extend({
+    id: '',
     img: '',
     name: '',
     username: ''
@@ -335,9 +326,7 @@ backend.getNewTweets = function(data, cb) {
 };
 
 backend.getSearchQueries = function(cb) {
-  console.log('getting search queries');
   chrome.storage.local.get('searchQueries', function(data) {
-    console.log('getting search queries -> data', data);
     cb(data.searchQueries);
   });
 
