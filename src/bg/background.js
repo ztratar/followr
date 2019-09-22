@@ -118,9 +118,11 @@ backend.findAndSetUsersInfo = function(data) {
       url: 'http://twitter.com/',
       active: false
     }, function(tab) {
-      chrome.tabs.executeScript(tab.id, {
-        code: 'window.followrSendUserInfo({ closeWindow: true })'
-      });
+      setTimeout(function() {
+        chrome.tabs.executeScript(tab.id, {
+          file: 'src/inject/inject.js'
+        });
+      }, 3000);
     });
   }
 };
@@ -140,7 +142,14 @@ backend.removeOldTweetData = function() {
 };
 
 backend.setUserInfo = function(data) {
-  ga('send', 'event', 'backend', 'user info set', data.username);
+  chrome.storage.local.get('user', function(oldData) {
+    if (oldData && oldData.username) {
+      ga('send', 'event', 'backend', 'user info refreshed', oldData.username);
+    } else {
+      ga('send', 'event', 'backend', 'user info initialized', data.username);
+    }
+  });
+
   data = _.extend({
     id: '',
     img: '',
@@ -459,7 +468,17 @@ backend.setOptions = function(data, cb) {
 };
 
 backend.setLoggedInStatus = function(data, cb) {
-  loggedIn = data;
+  console.log('setting logged status', data);
+
+  if (data !== loggedIn) {
+    ga('send', 'event', 'backend', 'set logged in status', data ? 'true' : 'false');
+    loggedIn = data;
+
+    if (loggedIn) {
+      // New Log in -- run followr
+      backend.launchTwitterInBackground();
+    }
+  }
 
   return true;
 };

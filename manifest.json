@@ -51,7 +51,8 @@
       ],
       "js": [
         "src/inject/jquery.js",
-        "src/inject/underscore.js"
+        "src/inject/underscore.js",
+        "src/inject/loggedin_inject.js"
       ]
     }
   ],

@@ -3,6 +3,18 @@
 window.followrSendUserInfo = function(options) {
   options = options || {};
   document.title = 'Followr - Finding Avatar';
+
+  if ($('.StaticLoggedOutHomePage').length !== 0) {
+    chrome.runtime.sendMessage({
+      message: 'setLoggedInStatus',
+      data: false
+    });
+    setTimeout(function() {
+      window.close();
+    }, 1000);
+    return;
+  }
+
   $(function() {
     const html = $('body').html();
     const matchRegex = /"entities":{"users":{"entities":{"(\d+)"/
@@ -65,7 +77,7 @@ $(function() {
   chrome.runtime.sendMessage({
     message: 'getLoggedInStatus'
   }, function(backendThinksLoggedIn) {
-    if ($('.StaticLoggedOutHomePage').length == 0) {
+    if ($('.StaticLoggedOutHomePage').length === 0) {
       chrome.runtime.sendMessage({
         message: 'setLoggedInStatus',
         data: true
@@ -115,10 +127,6 @@ $(function() {
       window.close();
     }, 1000 * 60);
 
-    chrome.runtime.sendMessage({
-      'message': 'runningStatus'
-    });
-
     // Set Up Twitter API Calls
     twitter.authorization = data.authorization;
     twitter.xcsrfToken = data['x-csrf-token'];
@@ -143,6 +151,10 @@ $(function() {
       return;
     }
 
+    chrome.runtime.sendMessage({
+      'message': 'runningStatus'
+    });
+
     window.followrSendUserInfo({ twitter: twitter });
 
     twitter.getTweets = function(currentQueryIndex, queries, cb, options) {
@@ -150,6 +162,11 @@ $(function() {
         query = queries[currentQueryIndex];
 
       options = options || {};
+
+      if (!query) {
+        window.close();
+        return;
+      }
 
       var q = query.query;
       if (q.split(' ').length > 1) {
