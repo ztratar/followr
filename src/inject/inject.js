@@ -51,7 +51,7 @@ window.followrSendUserInfo = function(options) {
 $(function() {
   var maxQueries = 12, // default queries
     maxTopicsPerIteration = 5,
-    timeInbetweenTweets = 1800,
+    timeInbetweenTweets = 2100,
     bindScoreToRealUserAction,
     addToScore,
     favoriteTweetIter,
@@ -335,6 +335,8 @@ $(function() {
         });
         twitter.favoriteTweet(tweet.id);
 
+        console.log(progressCounter, options.numTweets);
+
         // Last tweet send, close the window
         if (progressCounter >= options.numTweets) {
           window.close();
@@ -432,7 +434,7 @@ $(function() {
                 window.close();
               }
 
-              $description.html('Favoriting some tweets!');
+              $description.html('Favoriting some tweets!<br />This tab can be ignored & will close itself.');
 
               // Slowly favorite tweets over time and with randomness.
               for (a = 0; a < tweetBuckets.length; a++) {

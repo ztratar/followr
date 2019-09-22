@@ -57,5 +57,5 @@
     }
   ],
   "options_page": "options.html",
-  "content_security_policy": "script-src 'self' 'sha256-XYPqAfB7kzAYUliejadQiN2sX/h9psqJDoA3Y8oQL3M=' 'unsafe-eval' https://www.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'sha256-a4NLGNWHvCpsy/sJZAWpd4S4ejYt92p4p4DxYicDXgw=' 'unsafe-eval' https://www.google-analytics.com; object-src 'self'"
 }

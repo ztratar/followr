@@ -1,10 +1,5 @@
-@font-face{
-	font-family: 'Lato';
-	src: url(data:font/ttf;base64,) format('truetype');
-}
-
 body, html {
-	font-family: 'Lato', sans-serif;
+	font-family: sans-serif;
 	font-size: 18px;
 	background: #fff;
 	min-width: 440px;
@@ -121,8 +116,8 @@ p {
 	right: 30px;
 	bottom: 17px;
 	padding: 3px 5px;
-	font-family: 'Lato-Bold';
 	font-size: 12px;
+  font-weight: bold;
 }
 
 ul.options-nav {
@@ -157,8 +152,8 @@ ul.options-nav li a {
 	text-transform: uppercase;
 	text-decoration: none;
 	color: #ADADAD;
-	font-family: 'Lato-Bold';
 	font-size: 14px;
+  font-weight: bold;
 	outline: none;
 }
 
@@ -183,16 +178,16 @@ div.save-row {
 div.row label {
 	display: block;
 	text-transform: uppercase;
-	font-weight: 500;
-	font-size: 16px;
+	font-weight: 600;
+	font-size: 14px;
 	color: #666;
-	margin: 20px 0 8px 0;
+	margin: 24px 0 8px 0;
 }
 
 div.row label small {
 	font-weight: 400;
 	color: #bbb;
-	font-size: 16px;
+	font-size: 14px;
 	margin: 0 0 0 5px;
 }
 
@@ -201,7 +196,6 @@ div.row textarea {
 }
 
 div.row textarea, div.row input {
-	font-family: 'Lato';
 	color: #282828;
 	width: 100%;
 	resize: none;
@@ -235,7 +229,8 @@ div.row input[type="submit"] {
 	font-size: 22px;
 	letter-spacing: 1px;
 	text-shadow: 0 1px 2px rgba(0,0,0,.24);
-	font-family: 'Lato-Bold', san-serif;
+	font-family: "Arial", sans-serif;
+  font-weight: bold;
 	border: none;
 	border-bottom: 2px solid #1C87CF;
 }

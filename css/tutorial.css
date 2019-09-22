@@ -4,7 +4,7 @@ html {
 
 .tutorial {
 	text-align: center;
-	font-family: 'Lato', sans-serif;
+	font-family: sans-serif;
 	display: table;
 	height: 100%;
 	width: 100%;
@@ -60,8 +60,7 @@ html {
 .tutorial h2 {
 	color: #1893ad;
 	font-size: 32px;
-	font-weight: 400;
-	font-family: 'Lato-Bold';
+	font-weight: 600;
 }
 
 .tutorial .step-1 {
@@ -84,14 +83,13 @@ html {
 
 .tutorial .step-2 {
 	opacity: 0;
-	pointer-events: none;
 	position: fixed;
 	top: 157px;
 	right: 187px;
 	line-height: 20px;
 	font-size: 34px;
 	color: #398e9f;
-	font-family: 'Lato-Bold';
+  font-weight: bold;
 	-webkit-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
 	   -moz-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
 		 -o-transition: all .28s cubic-bezier(0.785, 0.135, 0.150, 0.860); 
@@ -132,6 +130,49 @@ html {
 .tutorial .step-2.show img.arrow {
 	top: 40px;
 	right: 44px;
+}
+
+ul.step-2-checklist {
+  position: fixed;
+  top: 50%;
+  left: calc(50% - 250px);
+  width: 500px;
+  font-size: 24px;
+  font-weight: 400;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.step-2-checklist li {
+  width: 100% !important;
+  text-align: left !important;
+  margin: 0 0 18px;
+  color: #4e6b71;
+}
+
+ul.step-2-checklist li a {
+  color: #0891ad;
+}
+
+ul.step-2-checklist li span {
+  margin-right: 12px;
+}
+
+ul.step-2-checklist li span.complete {
+  display: none;
+}
+
+ul.step-2-checklist li.active span.complete {
+  display: inline-block;
+}
+
+ul.step-2-checklist li span.incomplete {
+  display: inline-block;
+}
+
+ul.step-2-checklist li.active span.incomplete {
+  display: none;
 }
 
 @media (max-width: 1090px) {

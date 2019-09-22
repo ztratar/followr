@@ -35,6 +35,10 @@
 		<div class="step-2">
 			<img class="arrow" src="/img/tutorial/arrow.png">
 			<span>Click <img src="/icons/icon48.png"> to begin!</span>
+      <ul class="step-2-checklist">
+        <li class="add-topics"><span class="complete">✅</span><span class="incomplete">◻️</span>Click the icon above to add topics</li>
+        <li class="log-in"><span class="complete">✅</span><span class="incomplete">◻️</span><a href="https://www.twitter.com">Log into twitter</a></li>
+      </ul>
 		</div>
 		<script type="text/javascript" src="/src/inject/jquery.js"></script>
 		<script type="text/javascript" src="/src/tutorial/tutorial.js"></script>
@@ -45,8 +49,8 @@
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
 			ga('create', 'UA-48998506-2', 'ztratar.github.io');
+      ga('set', 'checkProtocolTask', null); // Required to send data
 			ga('send', 'pageview', '/tutorial');
 		</script>
-
 	</body>
 </html>
