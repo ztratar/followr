@@ -9,7 +9,8 @@
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-ga('create', 'UA-48998506-2', 'ztratar.github.io');
+ga('create', 'UA-48998506-2', 'auto');
+ga('set', 'checkProtocolTask', null); // Required to send data
 ga('send', 'pageview', '/background');
 
 // -----------------------
@@ -62,7 +63,7 @@ backend.launchTwitterInBackground = function() {
   }
 
   var createTabFunc = function() {
-    ga('send', 'event', 'backend', 'run', 'success');
+    ga('send', 'event', 'backend', 'tab created');
     chrome.tabs.create({
       url: 'http://twitter.com/',
       active: false
@@ -89,7 +90,7 @@ backend.launchTwitterInBackground = function() {
     var tabId;
 
     if (!searchQueries || !searchQueries.length) {
-      ga('send', 'event', 'backend', 'run', 'failed', 'no search queries');
+      ga('send', 'event', 'backend', 'run halted - no search queries');
       return;
     }
     // Store run time in milliseconds
@@ -133,11 +134,13 @@ backend.removeOldTweetData = function() {
         removeKeys.push(dataKey);
       }
     }
+    ga('send', 'event', 'backend', 'removing old tweet data', '', removeKeys.length);
     chrome.storage.local.remove(removeKeys);
   });
 };
 
 backend.setUserInfo = function(data) {
+  ga('send', 'event', 'backend', 'user info set', data.username);
   data = _.extend({
     id: '',
     img: '',
@@ -151,6 +154,14 @@ backend.setUserInfo = function(data) {
   return true;
 };
 
+backend.trackFavoritedTweet = function(id) {
+  ga('send', 'event', 'backend', 'tweet favorited', id);
+};
+
+backend.trackUnfavoritedTweet = function(id) {
+  ga('send', 'event', 'backend', 'tweet unfavorited', id);
+};
+
 backend.runningStatus = function() {
   tabOnlineCheck = true;
 
@@ -158,6 +169,7 @@ backend.runningStatus = function() {
 };
 
 backend.incrementRunCount = function(cb) {
+  ga('send', 'event', 'backend', 'run');
   chrome.storage.local.get('runCount', function(data) {
     chrome.storage.local.set({
       runCount: (typeof data.runCount === 'number') ? (data.runCount + 1) : 0
@@ -226,8 +238,8 @@ backend.getAndClearOldTweets = function(cb) {
     }
 
     tweets = _.filter(tweets, function(tweet) {
-      // Only unfavorate and remove tweets that are 5 days old or longer
-      return (tweet.timeFavorited < (new Date()).getTime() - 1000 * 60 * 60 * 24 * 5);
+      // Only unfavorate and remove tweets that are a day old or longer
+      return (tweet.timeFavorited < (new Date()).getTime() - 1000 * 60 * 60 * 24);
     });
 
     if (tweets.length) {
@@ -235,7 +247,7 @@ backend.getAndClearOldTweets = function(cb) {
         return 'tweet-' + tweetId;
       });
       chrome.storage.local.remove(tweetKeys);
-      ga('send', 'event', 'backend', 'clear', 'tweets', tweetKeys.length);
+      ga('send', 'event', 'backend', 'old tweets cleared', '', tweetKeys.length);
     }
 
     cb(tweets);
@@ -274,7 +286,6 @@ backend.getNewTweets = function(data, cb) {
             tweetBuckets[tbIndex].items = tweetBucket.items.slice(0, maxIndices[tbIndex]);
           });
 
-          ga('send', 'event', 'backend', 'favorite', 'tweets', tweetBuckets.length);
           cb(tweetBuckets);
         });
       });
@@ -314,7 +325,6 @@ backend.getNewTweets = function(data, cb) {
   }
 
   if (!data.tweetBuckets || !data.tweetBuckets.length) {
-    ga('send', 'event', 'backend', 'favorite', 'tweets', 0);
     cb([]);
   }
   backend.getUserInfo(function(cUser) {
@@ -414,7 +424,9 @@ backend.setFavorited = function(tweetData, cb) {
 };
 
 backend.setSearchQueries = function(queries, cb) {
-  ga('send', 'event', 'backend', 'set', 'queries', queries.join(', '));
+  for (const query of queries) {
+    ga('send', 'event', 'backend', 'set query', query);
+  }
   queries = queries || [];
   // TODO: Put an interface to this function
   chrome.storage.local.set({
@@ -550,6 +562,10 @@ chrome.runtime.onMessage.addListener(
         return backend.setFollowersAndConversions(data.data, sendResponse);
       case 'setUserInfo':
         return backend.setUserInfo(data.data);
+      case 'trackFavoritedTweet':
+        return backend.trackFavoritedTweet(data.data);
+      case 'trackUnfavoritedTweet':
+        return backend.trackUnfavoritedTweet(data.data);
       case 'forceRun':
         backend.launchTwitterInBackground();
         return true;

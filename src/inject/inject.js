@@ -39,7 +39,7 @@ window.followrSendUserInfo = function(options) {
 $(function() {
   var maxQueries = 12, // default queries
     maxTopicsPerIteration = 5,
-    timeInbetweenTweets = 1500,
+    timeInbetweenTweets = 1800,
     bindScoreToRealUserAction,
     addToScore,
     favoriteTweetIter,
@@ -249,6 +249,10 @@ $(function() {
           tweet_mode: 'extended'
         },
         success: function(data) {
+          chrome.runtime.sendMessage({
+            message: 'trackFavoritedTweet',
+            data: id
+          });
           if (cb) cb(data);
         }
       });
@@ -264,6 +268,12 @@ $(function() {
         },
         data: {
           'id': id
+        },
+        success: function() {
+          chrome.runtime.sendMessage({
+            message: 'trackUnfavoritedTweet',
+            data: id
+          });
         }
       });
     };
