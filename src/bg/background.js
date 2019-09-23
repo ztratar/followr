@@ -163,6 +163,11 @@ backend.setUserInfo = function(data) {
   return true;
 };
 
+backend.sendAnalyticsEvent = function(data) {
+  if (!data || !data.eventAction || !data.eventCategory) return;
+  ga('send', 'event', data.eventCategory, data.eventAction);
+};
+
 backend.trackFavoritedTweet = function(id) {
   ga('send', 'event', 'backend', 'tweet favorited', id);
 };
@@ -581,6 +586,8 @@ chrome.runtime.onMessage.addListener(
         return backend.setFollowersAndConversions(data.data, sendResponse);
       case 'setUserInfo':
         return backend.setUserInfo(data.data);
+      case 'sendAnalyticsEvent':
+        return backend.sendAnalyticsEvent(data.data);
       case 'trackFavoritedTweet':
         return backend.trackFavoritedTweet(data.data);
       case 'trackUnfavoritedTweet':

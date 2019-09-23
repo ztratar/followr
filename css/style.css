@@ -111,3 +111,44 @@ table.buckets tr td.statusNum {
 	margin: 30px 0 0;
 	display: block;
 }
+
+.followr-add-queries-notif {
+  position: fixed;
+  right: 32px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 2px 22px rgba(0,0,0.08);
+  font-size: 22px;
+  font-weight: bold;
+  color: #484e52;
+  max-width: 280px;
+  padding: 32px 32px 32px 102px;
+  overflow: hidden;
+  width: 100%;
+  top: 40px;
+  opacity: 0;
+  transition: all 0.24s ease-out;
+}
+
+.followr-add-queries-notif.active {
+  top: 32px;
+  opacity: 1;
+}
+
+.followr-add-queries-notif img {
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  top: 35px;
+  right: 330px;
+}
+
+.followr-add-queries-notif:before {
+  content: '';
+  border-bottom: 14px solid white;
+  border-right: 14px solid transparent;
+  border-left: 14px solid transparent;
+  position: fixed;
+  top: 18px;
+  right: 150px;
+}
