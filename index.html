@@ -20,7 +20,7 @@
 					<li><a class="show-tutorial" href="#tutorial">How?</a></li>
 					<li><a href="http://zachtratar.com/followrv1.html" target="_blank">What's new in v1?</a></li>
 				</ul>
-				<a href="#" class="download">
+				<a href="https://chrome.google.com/webstore/detail/followr/phbifpkhlenmpjndnmjppbdhcocdlalk" class="download" target="_blank">
 					<i class="icon-chrome"></i> Download for Chrome
 				</a>
 				<div class="tweet-button-wrap">
@@ -75,22 +75,9 @@
 						$download.html('Installed! Happy tweeting.').addClass('disabled');
 					};
 
-				if (chrome && chrome.webstore && chrome.webstore.install) {
-					if (chrome.app.isInstalled) {
-						installed();
-					} else {
-						$download.click(function() {
-							chrome.webstore.install(undefined, function() {
-								installed();
-							}, function(data) {
-								console.log(data);	
-							});
-							return false;
-						});	
-					}
-				} else {
-					$download.html('Only available for Chrome').addClass('disabled');
-				}
+				if (chrome && chrome.webstore && chrome.webstore.install && chrome.app && chrome.app.isInstalled) {
+			    installed();
+        }
 
 				$('.next-button, .show-tutorial').on('click', function() {
 					$tutorial.toggleClass('show');
